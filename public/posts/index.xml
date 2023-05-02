@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Posts on paulosalum.github.io</title>
+    <link>https://paulosalum.github.io/posts/</link>
+    <description>Recent content in Posts on paulosalum.github.io</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 02 May 2023 15:47:17 -0300</lastBuildDate><atom:link href="https://paulosalum.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Teste de Integração com TestContainers e Golang: Testando Conexão com Banco de Dados PostgreSQL</title>
+      <link>https://paulosalum.github.io/posts/testcontainer-go-postgresql/</link>
+      <pubDate>Tue, 02 May 2023 15:47:17 -0300</pubDate>
+      
+      <guid>https://paulosalum.github.io/posts/testcontainer-go-postgresql/</guid>
+      <description>Neste artigo, demonstraremos como usar a biblioteca TestContainers em um projeto Golang para executar testes de integração com um banco de dados PostgreSQL. Vamos criar um teste que verifica a conexão com o banco de dados usando um contêiner Docker.
+Importando bibliotecas necessárias Primeiramente, importamos as bibliotecas necessárias para criar e gerenciar contêineres Docker e realizar testes usando a biblioteca testify:
+import ( &amp;#34;context&amp;#34; &amp;#34;database/sql&amp;#34; &amp;#34;fmt&amp;#34; _ &amp;#34;github.com/lib/pq&amp;#34; &amp;#34;github.com/stretchr/testify/assert&amp;#34; &amp;#34;github.com/testcontainers/testcontainers-go&amp;#34; &amp;#34;github.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,27 @@
+baseURL = 'https://paulosalum.github.io/'
+languageCode = 'en-us'
+title = 'paulosalum.github.io'
+theme = 'PaperMod'
+
+[params]
+defaultTheme = "dark"
+ShowShareButtons = true
+ShowReadingTime = true
+ShowToc = true
+TocOpen = true
+ShowBreadCrumbs = true
+ShowCodeCopyButtons = true
+ShowPostNavLinks = true
+
+[params.homeInfoParams]
+Title = "Golang: A Jornada de um Desenvolvedor"
+Content = "Bem-vindo ao blog de um desenvolvedor entusiasta de Golang. Aqui, compartilho exemplos rápidos e dicas para aprimorar suas habilidades na linguagem Go. "
+
+[[params.socialIcons]]
+name = "LinkedIn"
+url = "https://www.linkedin.com/in/paulosalum/"
+
+[[params.socialIcons]]
+name = "Github"
+url = "https://github.com/PauloSalum"
+
