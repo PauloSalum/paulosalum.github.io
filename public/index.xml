@@ -5,7 +5,7 @@
     <link>https://paulosalum.github.io/</link>
     <description>Recent content on paulosalum.github.io</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>pt-br</language>
     <lastBuildDate>Tue, 02 May 2023 15:47:17 -0300</lastBuildDate><atom:link href="https://paulosalum.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Teste de Integração com TestContainers e Golang: Testando Conexão com Banco de Dados PostgreSQL</title>
