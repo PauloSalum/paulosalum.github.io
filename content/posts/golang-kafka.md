@@ -1,5 +1,5 @@
 ---
-title: "Integração entre Golang e Kafka"
+title: "Implementando leitura, escrita e streaming kafka em Go."
 date: 2023-05-03T16:40:21-03:00
 draft: false
 ---
