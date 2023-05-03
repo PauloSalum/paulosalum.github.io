@@ -50,6 +50,19 @@ func criarConfigurarContainer(imagemDocker string, portasExpostas []string, vari
 	return conteiner, nil
 }
 ```
+A função `criarConfigurarContainer` é responsável por criar e configurar um contêiner Docker utilizando a biblioteca Testcontainers-Go. Ela aceita três parâmetros:
+
+1. `imagemDocker`: a string contendo o nome da imagem Docker que será utilizada para criar o contêiner.
+2. `portasExpostas`: uma lista de strings representando as portas que serão expostas pelo contêiner.
+3. `variaveisAmbiente`: um mapa (map) onde a chave é a string representando o nome da variável de ambiente e o valor é a string representando o valor da variável de ambiente.
+
+A função inicia definindo a estrutura `testcontainers.ContainerRequest` com as informações fornecidas nos parâmetros. Essa estrutura é usada para configurar o contêiner Docker, incluindo a imagem Docker, as portas expostas e as variáveis de ambiente. A propriedade `WaitingFor` é configurada com um log específico e um tempo limite de inicialização (2 segundos) para garantir que o contêiner esteja pronto para aceitar conexões antes de prosseguir.
+
+Em seguida, a função `testcontainers.GenericContainer` é chamada com um contexto e um objeto `testcontainers.GenericContainerRequest`. A função cria o contêiner Docker com base na configuração fornecida (`containerRequest`) e inicia-o (propriedade `Started` definida como `true`).
+
+Se ocorrer algum erro durante a criação do contêiner, a função retorna `nil` e um erro formatado com informações sobre o problema encontrado. Caso contrário, a função retorna a instância do contêiner criado e `nil` para o erro.
+
+Essa função é útil para simplificar a criação e configuração de contêineres Docker em testes de integração, permitindo que você se concentre no teste em si em vez de lidar com a configuração do Docker.
 
 ## Teste de integração com o PostgreSQL
 
@@ -96,7 +109,18 @@ Com a conexão estabelecida, criamos uma instância do repositório e executamos
 }
 ```
 
-O teste utiliza a função `Ping()` para verificar a conexão com o banco de dados e a biblioteca `testify` para verificar se ocorreu algum erro durante a execução do método.
+Esse trexo do teste realiza as seguintes ações:
+
+1. `repository := NewRepository(db)`: Uma nova instância de um repositório é criada usando a função `NewRepository`, que recebe como parâmetro a conexão de banco de dados `db` previamente estabelecida.
+
+2. `time.Sleep(1 * time.Second)`: Uma pausa de 1 segundo é introduzida antes de executar o teste. Essa pausa pode ser necessária para garantir que o contêiner Docker e o banco de dados estejam prontos para aceitar conexões e realizar operações antes de prosseguir com o teste.
+
+3. `err2 := repository.Ping()`: A função `Ping` é chamada no repositório para verificar se a conexão com o banco de dados está funcionando corretamente. Se houver algum problema na conexão, a função retornará um erro (`err2`).
+
+4. `defer db.Close()`: A função `Close` é chamada com a palavra-chave `defer` para garantir que a conexão com o banco de dados seja fechada após a conclusão do teste, independentemente do resultado. A palavra-chave `defer` em Go permite programar a execução de uma função para o momento em que a função atual retorna. Isso é útil para garantir que os recursos sejam liberados corretamente.
+
+5. `assert.NoError(t, err2)`: A função `NoError` do pacote `assert` é usada para verificar se a função `Ping` não retornou nenhum erro. Se a função `Ping` retornou um erro, o teste falhará com uma mensagem informando o erro retornado.
+
 
 ## Conclusão
 
