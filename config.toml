@@ -2,6 +2,7 @@ baseURL = 'https://paulosalum.github.io/'
 languageCode = 'pt-br'
 title = 'paulosalum.github.io'
 theme = 'PaperMod'
+googleAnalytics = 'G-9TFD54FDGY'
 
 [params]
 defaultTheme = "dark"
