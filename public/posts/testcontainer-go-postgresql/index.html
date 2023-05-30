@@ -12,7 +12,7 @@ Importando bibliotecas necessárias Primeiramente, importamos as bibliotecas nec
 import ( &#34;context&#34; &#34;database/sql&#34; &#34;fmt&#34; _ &#34;github.com/lib/pq&#34; &#34;github.com/stretchr/testify/assert&#34; &#34;github.com/testcontainers/testcontainers-go&#34; &#34;github.">
 <meta name="author" content="">
 <link rel="canonical" href="https://paulosalum.github.io/posts/testcontainer-go-postgresql/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.3613efbd0b1772781e8f49935e973cae632a7f61471c05b17be155505ccf87b5.css" integrity="sha256-NhPvvQsXcngej0mTXpc8rmMqf2FHHAWxe&#43;FVUFzPh7U=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.4879321a85a1040010a43a83d47225cf717d7cb0d8f565bf0bfabfd9db2f9183.css" integrity="sha256-SHkyGoWhBAAQpDqD1HIlz3F9fLDY9WW/C/q/2dsvkYM=" rel="preload stylesheet" as="style">
 <script defer crossorigin="anonymous" src="/assets/js/highlight.f413e19d0714851f6474e7ee9632408e58ac146fbdbe62747134bea2fa3415e0.js" integrity="sha256-9BPhnQcUhR9kdOfuljJAjlisFG&#43;9vmJ0cTS&#43;ovo0FeA="
     onload="hljs.initHighlightingOnLoad();"></script>
 <link rel="icon" href="https://paulosalum.github.io/favicon.ico">
@@ -30,7 +30,20 @@ import ( &#34;context&#34; &#34;database/sql&#34; &#34;fmt&#34; _ &#34;github.co
         }
 
     </style>
-</noscript><meta property="og:title" content="Teste de Integração com TestContainers e Golang: Testando Conexão com Banco de Dados PostgreSQL" />
+</noscript>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'G-9TFD54FDGY', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<meta property="og:title" content="Teste de Integração com TestContainers e Golang: Testando Conexão com Banco de Dados PostgreSQL" />
 <meta property="og:description" content="Neste artigo, demonstraremos como usar a biblioteca TestContainers em um projeto Golang para executar testes de integração com um banco de dados PostgreSQL. Vamos criar um teste que verifica a conexão com o banco de dados usando um contêiner Docker.
 Importando bibliotecas necessárias Primeiramente, importamos as bibliotecas necessárias para criar e gerenciar contêineres Docker e realizar testes usando a biblioteca testify:
 import ( &#34;context&#34; &#34;database/sql&#34; &#34;fmt&#34; _ &#34;github.com/lib/pq&#34; &#34;github.com/stretchr/testify/assert&#34; &#34;github.com/testcontainers/testcontainers-go&#34; &#34;github." />
@@ -76,8 +89,8 @@ import ( &#34;context&#34; &#34;database/sql&#34; &#34;fmt&#34; _ &#34;github.co
   "keywords": [
     
   ],
-  "articleBody": "Neste artigo, demonstraremos como usar a biblioteca TestContainers em um projeto Golang para executar testes de integração com um banco de dados PostgreSQL. Vamos criar um teste que verifica a conexão com o banco de dados usando um contêiner Docker.\nImportando bibliotecas necessárias Primeiramente, importamos as bibliotecas necessárias para criar e gerenciar contêineres Docker e realizar testes usando a biblioteca testify:\nimport ( \"context\" \"database/sql\" \"fmt\" _ \"github.com/lib/pq\" \"github.com/stretchr/testify/assert\" \"github.com/testcontainers/testcontainers-go\" \"github.com/testcontainers/testcontainers-go/wait\" \"testing\" \"time\" ) Função para criar e configurar contêiner Docker Em seguida, criamos a função criarConfigurarContainer que recebe a imagem Docker, as portas expostas e as variáveis de ambiente como parâmetros e retorna um contêiner configurado e iniciado:\nfunc criarConfigurarContainer(imagemDocker string, portasExpostas []string, variaveisAmbiente map[string]string) (testcontainers.Container, error) { // Configuração do contêiner containerRequest := testcontainers.ContainerRequest{ Image: imagemDocker, ExposedPorts: portasExpostas, Env: variaveisAmbiente, WaitingFor: wait.ForLog(\"database system is ready to accept connections\").WithStartupTimeout(2 * time.Second), } // Criação do contêiner conteiner, err := testcontainers.GenericContainer(context.Background(), testcontainers.GenericContainerRequest{ ContainerRequest: containerRequest, Started: true, }) if err != nil { return nil, fmt.Errorf(\"erro ao criar o contêiner: %w\", err) } return conteiner, nil } Teste de integração com o PostgreSQL Agora, criamos a função de teste TestRepository_Ping, que utiliza a função criarConfigurarContainer para iniciar um contêiner PostgreSQL e testar a conexão com o banco de dados:\nfunc TestRepository_Ping(t *testing.T) { portasExpostas := []string{\"5432/tcp\"} variaveisAmbiente := map[string]string{\"POSTGRES_PASSWORD\": \"postgres\", \"POSTGRES_DB\": \"postgres\", \"POSTGRES_USER\": \"postgres\"} container, err := criarConfigurarContainer(\"docker.io/postgres:15.2-alpine\", portasExpostas, variaveisAmbiente) if err != nil { t.Fatalf(\"erro ao criar o contêiner: %s\", err) } defer func(container testcontainers.Container, ctx context.Context) { err := container.Terminate(ctx) if err != nil { t.Fatalf(\"erro ao finalizar o contêiner: %s\", err) } }(container, context.Background()) Após criar e configurar o contêiner PostgreSQL, obtemos a porta mapeada no host e estabelecemos a conexão com o banco de dados:\nportaMapeada, err := container.MappedPort(context.Background(), \"5432/tcp\") if err != nil { t.Fatalf(\"erro ao obter a porta mapeada: %s\", err) } db, err := sql.Open(\"postgres\", fmt.Sprintf(\"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable\", \"localhost\", portaMapeada.Port(), \"postgres\", \"postgres\", \"postgres\")) if err != nil { t.Fatalf(\"erro ao conectar no banco de dados: %s\", err) } Com a conexão estabelecida, criamos uma instância do repositório e executamos o método Ping() para verificar a conexão com o banco de dados:\nrepository := NewRepository(db) time.Sleep(1 * time.Second) err2 := repository.Ping() defer db.Close() assert.NoError(t, err2) } O teste utiliza a função Ping() para verificar a conexão com o banco de dados e a biblioteca testify para verificar se ocorreu algum erro durante a execução do método.\nConclusão Neste artigo, vimos como usar a biblioteca TestContainers em um projeto Golang para executar testes de integração com um banco de dados PostgreSQL em um contêiner Docker. O exemplo demonstrou como criar e configurar um contêiner, estabelecer a conexão com o banco de dados e verificar a conexão utilizando um teste Golang.\nA utilização de TestContainers é uma solução prática e eficiente para executar testes de integração, pois permite a criação e configuração de ambientes isolados e controlados, facilitando o desenvolvimento e a verificação da integração entre componentes de software.\nO código utilizado nesse artigo encontra-se aqui\n",
-  "wordCount" : "502",
+  "articleBody": "Neste artigo, demonstraremos como usar a biblioteca TestContainers em um projeto Golang para executar testes de integração com um banco de dados PostgreSQL. Vamos criar um teste que verifica a conexão com o banco de dados usando um contêiner Docker.\nImportando bibliotecas necessárias Primeiramente, importamos as bibliotecas necessárias para criar e gerenciar contêineres Docker e realizar testes usando a biblioteca testify:\nimport ( \"context\" \"database/sql\" \"fmt\" _ \"github.com/lib/pq\" \"github.com/stretchr/testify/assert\" \"github.com/testcontainers/testcontainers-go\" \"github.com/testcontainers/testcontainers-go/wait\" \"testing\" \"time\" ) Função para criar e configurar contêiner Docker Em seguida, criamos a função criarConfigurarContainer que recebe a imagem Docker, as portas expostas e as variáveis de ambiente como parâmetros e retorna um contêiner configurado e iniciado:\nfunc criarConfigurarContainer(imagemDocker string, portasExpostas []string, variaveisAmbiente map[string]string) (testcontainers.Container, error) { // Configuração do contêiner \tcontainerRequest := testcontainers.ContainerRequest{ Image: imagemDocker, ExposedPorts: portasExpostas, Env: variaveisAmbiente, WaitingFor: wait.ForLog(\"database system is ready to accept connections\").WithStartupTimeout(2 * time.Second), } // Criação do contêiner \tconteiner, err := testcontainers.GenericContainer(context.Background(), testcontainers.GenericContainerRequest{ ContainerRequest: containerRequest, Started: true, }) if err != nil { return nil, fmt.Errorf(\"erro ao criar o contêiner: %w\", err) } return conteiner, nil } A função criarConfigurarContainer é responsável por criar e configurar um contêiner Docker utilizando a biblioteca Testcontainers-Go. Ela aceita três parâmetros:\n imagemDocker: a string contendo o nome da imagem Docker que será utilizada para criar o contêiner. portasExpostas: uma lista de strings representando as portas que serão expostas pelo contêiner. variaveisAmbiente: um mapa (map) onde a chave é a string representando o nome da variável de ambiente e o valor é a string representando o valor da variável de ambiente.  A função inicia definindo a estrutura testcontainers.ContainerRequest com as informações fornecidas nos parâmetros. Essa estrutura é usada para configurar o contêiner Docker, incluindo a imagem Docker, as portas expostas e as variáveis de ambiente. A propriedade WaitingFor é configurada com um log específico e um tempo limite de inicialização (2 segundos) para garantir que o contêiner esteja pronto para aceitar conexões antes de prosseguir.\nEm seguida, a função testcontainers.GenericContainer é chamada com um contexto e um objeto testcontainers.GenericContainerRequest. A função cria o contêiner Docker com base na configuração fornecida (containerRequest) e inicia-o (propriedade Started definida como true).\nSe ocorrer algum erro durante a criação do contêiner, a função retorna nil e um erro formatado com informações sobre o problema encontrado. Caso contrário, a função retorna a instância do contêiner criado e nil para o erro.\nEssa função é útil para simplificar a criação e configuração de contêineres Docker em testes de integração, permitindo que você se concentre no teste em si em vez de lidar com a configuração do Docker.\nTeste de integração com o PostgreSQL Agora, criamos a função de teste TestRepository_Ping, que utiliza a função criarConfigurarContainer para iniciar um contêiner PostgreSQL e testar a conexão com o banco de dados:\nfunc TestRepository_Ping(t *testing.T) { portasExpostas := []string{\"5432/tcp\"} variaveisAmbiente := map[string]string{\"POSTGRES_PASSWORD\": \"postgres\", \"POSTGRES_DB\": \"postgres\", \"POSTGRES_USER\": \"postgres\"} container, err := criarConfigurarContainer(\"docker.io/postgres:15.2-alpine\", portasExpostas, variaveisAmbiente) if err != nil { t.Fatalf(\"erro ao criar o contêiner: %s\", err) } defer func(container testcontainers.Container, ctx context.Context) { err := container.Terminate(ctx) if err != nil { t.Fatalf(\"erro ao finalizar o contêiner: %s\", err) } }(container, context.Background()) Após criar e configurar o contêiner PostgreSQL, obtemos a porta mapeada no host e estabelecemos a conexão com o banco de dados:\nportaMapeada, err := container.MappedPort(context.Background(), \"5432/tcp\") if err != nil { t.Fatalf(\"erro ao obter a porta mapeada: %s\", err) } db, err := sql.Open(\"postgres\", fmt.Sprintf(\"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable\", \"localhost\", portaMapeada.Port(), \"postgres\", \"postgres\", \"postgres\")) if err != nil { t.Fatalf(\"erro ao conectar no banco de dados: %s\", err) } Com a conexão estabelecida, criamos uma instância do repositório e executamos o método Ping() para verificar a conexão com o banco de dados:\nrepository := NewRepository(db) time.Sleep(1 * time.Second) err2 := repository.Ping() defer db.Close() assert.NoError(t, err2) } Esse trexo do teste realiza as seguintes ações:\n  repository := NewRepository(db): Uma nova instância de um repositório é criada usando a função NewRepository, que recebe como parâmetro a conexão de banco de dados db previamente estabelecida.\n  time.Sleep(1 * time.Second): Uma pausa de 1 segundo é introduzida antes de executar o teste. Essa pausa pode ser necessária para garantir que o contêiner Docker e o banco de dados estejam prontos para aceitar conexões e realizar operações antes de prosseguir com o teste.\n  err2 := repository.Ping(): A função Ping é chamada no repositório para verificar se a conexão com o banco de dados está funcionando corretamente. Se houver algum problema na conexão, a função retornará um erro (err2).\n  defer db.Close(): A função Close é chamada com a palavra-chave defer para garantir que a conexão com o banco de dados seja fechada após a conclusão do teste, independentemente do resultado. A palavra-chave defer em Go permite programar a execução de uma função para o momento em que a função atual retorna. Isso é útil para garantir que os recursos sejam liberados corretamente.\n  assert.NoError(t, err2): A função NoError do pacote assert é usada para verificar se a função Ping não retornou nenhum erro. Se a função Ping retornou um erro, o teste falhará com uma mensagem informando o erro retornado.\n  Conclusão Neste artigo, vimos como usar a biblioteca TestContainers em um projeto Golang para executar testes de integração com um banco de dados PostgreSQL em um contêiner Docker. O exemplo demonstrou como criar e configurar um contêiner, estabelecer a conexão com o banco de dados e verificar a conexão utilizando um teste Golang.\nA utilização de TestContainers é uma solução prática e eficiente para executar testes de integração, pois permite a criação e configuração de ambientes isolados e controlados, facilitando o desenvolvimento e a verificação da integração entre componentes de software.\nO código utilizado nesse artigo encontra-se aqui\n",
+  "wordCount" : "937",
   "inLanguage": "en",
   "datePublished": "2023-05-02T15:47:17-03:00",
   "dateModified": "2023-05-02T15:47:17-03:00",
@@ -144,7 +157,7 @@ import ( &#34;context&#34; &#34;database/sql&#34; &#34;fmt&#34; _ &#34;github.co
     <h1 class="post-title">
       Teste de Integração com TestContainers e Golang: Testando Conexão com Banco de Dados PostgreSQL
     </h1>
-    <div class="post-meta"><span title='2023-05-02 15:47:17 -0300 -03'>May 2, 2023</span>&nbsp;·&nbsp;3 min
+    <div class="post-meta"><span title='2023-05-02 15:47:17 -0300 -03'>May 2, 2023</span>&nbsp;·&nbsp;5 min
 
 </div>
   </header> <div class="toc">
@@ -171,73 +184,100 @@ import ( &#34;context&#34; &#34;database/sql&#34; &#34;fmt&#34; _ &#34;github.co
   <div class="post-content"><p>Neste artigo, demonstraremos como usar a biblioteca TestContainers em um projeto Golang para executar testes de integração com um banco de dados PostgreSQL. Vamos criar um teste que verifica a conexão com o banco de dados usando um contêiner Docker.</p>
 <h2 id="importando-bibliotecas-necessárias">Importando bibliotecas necessárias<a hidden class="anchor" aria-hidden="true" href="#importando-bibliotecas-necessárias">#</a></h2>
 <p>Primeiramente, importamos as bibliotecas necessárias para criar e gerenciar contêineres Docker e realizar testes usando a biblioteca <code>testify</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">import</span> (
-</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;context&#34;</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;database/sql&#34;</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;fmt&#34;</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/lib/pq&#34;</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;github.com/stretchr/testify/assert&#34;</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;github.com/testcontainers/testcontainers-go&#34;</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;github.com/testcontainers/testcontainers-go/wait&#34;</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;testing&#34;</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;time&#34;</span>
-</span></span><span style="display:flex;"><span>)
-</span></span></code></pre></div><h2 id="função-para-criar-e-configurar-contêiner-docker">Função para criar e configurar contêiner Docker<a hidden class="anchor" aria-hidden="true" href="#função-para-criar-e-configurar-contêiner-docker">#</a></h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;context&#34;</span>
+	<span style="color:#e6db74">&#34;database/sql&#34;</span>
+	<span style="color:#e6db74">&#34;fmt&#34;</span>
+	<span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/lib/pq&#34;</span>
+	<span style="color:#e6db74">&#34;github.com/stretchr/testify/assert&#34;</span>
+	<span style="color:#e6db74">&#34;github.com/testcontainers/testcontainers-go&#34;</span>
+	<span style="color:#e6db74">&#34;github.com/testcontainers/testcontainers-go/wait&#34;</span>
+	<span style="color:#e6db74">&#34;testing&#34;</span>
+	<span style="color:#e6db74">&#34;time&#34;</span>
+)
+</code></pre></div><h2 id="função-para-criar-e-configurar-contêiner-docker">Função para criar e configurar contêiner Docker<a hidden class="anchor" aria-hidden="true" href="#função-para-criar-e-configurar-contêiner-docker">#</a></h2>
 <p>Em seguida, criamos a função <code>criarConfigurarContainer</code> que recebe a imagem Docker, as portas expostas e as variáveis de ambiente como parâmetros e retorna um contêiner configurado e iniciado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">criarConfigurarContainer</span>(<span style="color:#a6e22e">imagemDocker</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">portasExpostas</span> []<span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">variaveisAmbiente</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">Container</span>, <span style="color:#66d9ef">error</span>) {
-</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Configuração do contêiner
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">containerRequest</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">ContainerRequest</span>{
-</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Image</span>:        <span style="color:#a6e22e">imagemDocker</span>,
-</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">ExposedPorts</span>: <span style="color:#a6e22e">portasExpostas</span>,
-</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Env</span>:          <span style="color:#a6e22e">variaveisAmbiente</span>,
-</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">WaitingFor</span>:   <span style="color:#a6e22e">wait</span>.<span style="color:#a6e22e">ForLog</span>(<span style="color:#e6db74">&#34;database system is ready to accept connections&#34;</span>).<span style="color:#a6e22e">WithStartupTimeout</span>(<span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>),
-</span></span><span style="display:flex;"><span>	}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Criação do contêiner
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">conteiner</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">GenericContainer</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>(), <span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">GenericContainerRequest</span>{
-</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">ContainerRequest</span>: <span style="color:#a6e22e">containerRequest</span>,
-</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Started</span>:          <span style="color:#66d9ef">true</span>,
-</span></span><span style="display:flex;"><span>	})
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
-</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;erro ao criar o contêiner: %w&#34;</span>, <span style="color:#a6e22e">err</span>)
-</span></span><span style="display:flex;"><span>	}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">conteiner</span>, <span style="color:#66d9ef">nil</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="teste-de-integração-com-o-postgresql">Teste de integração com o PostgreSQL<a hidden class="anchor" aria-hidden="true" href="#teste-de-integração-com-o-postgresql">#</a></h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">criarConfigurarContainer</span>(<span style="color:#a6e22e">imagemDocker</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">portasExpostas</span> []<span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">variaveisAmbiente</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">Container</span>, <span style="color:#66d9ef">error</span>) {
+	<span style="color:#75715e">// Configuração do contêiner
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">containerRequest</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">ContainerRequest</span>{
+		<span style="color:#a6e22e">Image</span>:        <span style="color:#a6e22e">imagemDocker</span>,
+		<span style="color:#a6e22e">ExposedPorts</span>: <span style="color:#a6e22e">portasExpostas</span>,
+		<span style="color:#a6e22e">Env</span>:          <span style="color:#a6e22e">variaveisAmbiente</span>,
+		<span style="color:#a6e22e">WaitingFor</span>:   <span style="color:#a6e22e">wait</span>.<span style="color:#a6e22e">ForLog</span>(<span style="color:#e6db74">&#34;database system is ready to accept connections&#34;</span>).<span style="color:#a6e22e">WithStartupTimeout</span>(<span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>),
+	}
+
+	<span style="color:#75715e">// Criação do contêiner
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">conteiner</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">GenericContainer</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>(), <span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">GenericContainerRequest</span>{
+		<span style="color:#a6e22e">ContainerRequest</span>: <span style="color:#a6e22e">containerRequest</span>,
+		<span style="color:#a6e22e">Started</span>:          <span style="color:#66d9ef">true</span>,
+	})
+
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;erro ao criar o contêiner: %w&#34;</span>, <span style="color:#a6e22e">err</span>)
+	}
+
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">conteiner</span>, <span style="color:#66d9ef">nil</span>
+}
+</code></pre></div><p>A função <code>criarConfigurarContainer</code> é responsável por criar e configurar um contêiner Docker utilizando a biblioteca Testcontainers-Go. Ela aceita três parâmetros:</p>
+<ol>
+<li><code>imagemDocker</code>: a string contendo o nome da imagem Docker que será utilizada para criar o contêiner.</li>
+<li><code>portasExpostas</code>: uma lista de strings representando as portas que serão expostas pelo contêiner.</li>
+<li><code>variaveisAmbiente</code>: um mapa (map) onde a chave é a string representando o nome da variável de ambiente e o valor é a string representando o valor da variável de ambiente.</li>
+</ol>
+<p>A função inicia definindo a estrutura <code>testcontainers.ContainerRequest</code> com as informações fornecidas nos parâmetros. Essa estrutura é usada para configurar o contêiner Docker, incluindo a imagem Docker, as portas expostas e as variáveis de ambiente. A propriedade <code>WaitingFor</code> é configurada com um log específico e um tempo limite de inicialização (2 segundos) para garantir que o contêiner esteja pronto para aceitar conexões antes de prosseguir.</p>
+<p>Em seguida, a função <code>testcontainers.GenericContainer</code> é chamada com um contexto e um objeto <code>testcontainers.GenericContainerRequest</code>. A função cria o contêiner Docker com base na configuração fornecida (<code>containerRequest</code>) e inicia-o (propriedade <code>Started</code> definida como <code>true</code>).</p>
+<p>Se ocorrer algum erro durante a criação do contêiner, a função retorna <code>nil</code> e um erro formatado com informações sobre o problema encontrado. Caso contrário, a função retorna a instância do contêiner criado e <code>nil</code> para o erro.</p>
+<p>Essa função é útil para simplificar a criação e configuração de contêineres Docker em testes de integração, permitindo que você se concentre no teste em si em vez de lidar com a configuração do Docker.</p>
+<h2 id="teste-de-integração-com-o-postgresql">Teste de integração com o PostgreSQL<a hidden class="anchor" aria-hidden="true" href="#teste-de-integração-com-o-postgresql">#</a></h2>
 <p>Agora, criamos a função de teste <code>TestRepository_Ping</code>, que utiliza a função <code>criarConfigurarContainer</code> para iniciar um contêiner PostgreSQL e testar a conexão com o banco de dados:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestRepository_Ping</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
-</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">portasExpostas</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;5432/tcp&#34;</span>}
-</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">variaveisAmbiente</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;POSTGRES_PASSWORD&#34;</span>: <span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#e6db74">&#34;POSTGRES_DB&#34;</span>: <span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#e6db74">&#34;POSTGRES_USER&#34;</span>: <span style="color:#e6db74">&#34;postgres&#34;</span>}
-</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">container</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">criarConfigurarContainer</span>(<span style="color:#e6db74">&#34;docker.io/postgres:15.2-alpine&#34;</span>, <span style="color:#a6e22e">portasExpostas</span>, <span style="color:#a6e22e">variaveisAmbiente</span>)
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
-</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;erro ao criar o contêiner: %s&#34;</span>, <span style="color:#a6e22e">err</span>)
-</span></span><span style="display:flex;"><span>	}
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">defer</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">container</span> <span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">Container</span>, <span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>) {
-</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">container</span>.<span style="color:#a6e22e">Terminate</span>(<span style="color:#a6e22e">ctx</span>)
-</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
-</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;erro ao finalizar o contêiner: %s&#34;</span>, <span style="color:#a6e22e">err</span>)
-</span></span><span style="display:flex;"><span>		}
-</span></span><span style="display:flex;"><span>	}(<span style="color:#a6e22e">container</span>, <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>())
-</span></span></code></pre></div><p>Após criar e configurar o contêiner PostgreSQL, obtemos a porta mapeada no host e estabelecemos a conexão com o banco de dados:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	<span style="color:#a6e22e">portaMapeada</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">container</span>.<span style="color:#a6e22e">MappedPort</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>(), <span style="color:#e6db74">&#34;5432/tcp&#34;</span>)
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
-</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;erro ao obter a porta mapeada: %s&#34;</span>, <span style="color:#a6e22e">err</span>)
-</span></span><span style="display:flex;"><span>	}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">db</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;host=%s port=%s user=%s password=%s dbname=%s sslmode=disable&#34;</span>, <span style="color:#e6db74">&#34;localhost&#34;</span>, <span style="color:#a6e22e">portaMapeada</span>.<span style="color:#a6e22e">Port</span>(), <span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#e6db74">&#34;postgres&#34;</span>)) 
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> { 
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;erro ao conectar no banco de dados: %s&#34;</span>, <span style="color:#a6e22e">err</span>) 
-</span></span><span style="display:flex;"><span>    }
-</span></span></code></pre></div><p>Com a conexão estabelecida, criamos uma instância do repositório e executamos o método <code>Ping()</code> para verificar a conexão com o banco de dados:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	<span style="color:#a6e22e">repository</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">NewRepository</span>(<span style="color:#a6e22e">db</span>)
-</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
-</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err2</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">repository</span>.<span style="color:#a6e22e">Ping</span>()
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">Close</span>()
-</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err2</span>)
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>O teste utiliza a função <code>Ping()</code> para verificar a conexão com o banco de dados e a biblioteca <code>testify</code> para verificar se ocorreu algum erro durante a execução do método.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestRepository_Ping</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">portasExpostas</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;5432/tcp&#34;</span>}
+	<span style="color:#a6e22e">variaveisAmbiente</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;POSTGRES_PASSWORD&#34;</span>: <span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#e6db74">&#34;POSTGRES_DB&#34;</span>: <span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#e6db74">&#34;POSTGRES_USER&#34;</span>: <span style="color:#e6db74">&#34;postgres&#34;</span>}
+	<span style="color:#a6e22e">container</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">criarConfigurarContainer</span>(<span style="color:#e6db74">&#34;docker.io/postgres:15.2-alpine&#34;</span>, <span style="color:#a6e22e">portasExpostas</span>, <span style="color:#a6e22e">variaveisAmbiente</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;erro ao criar o contêiner: %s&#34;</span>, <span style="color:#a6e22e">err</span>)
+	}
+	<span style="color:#66d9ef">defer</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">container</span> <span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">Container</span>, <span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>) {
+		<span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">container</span>.<span style="color:#a6e22e">Terminate</span>(<span style="color:#a6e22e">ctx</span>)
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+			<span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;erro ao finalizar o contêiner: %s&#34;</span>, <span style="color:#a6e22e">err</span>)
+		}
+	}(<span style="color:#a6e22e">container</span>, <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>())
+</code></pre></div><p>Após criar e configurar o contêiner PostgreSQL, obtemos a porta mapeada no host e estabelecemos a conexão com o banco de dados:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#a6e22e">portaMapeada</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">container</span>.<span style="color:#a6e22e">MappedPort</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>(), <span style="color:#e6db74">&#34;5432/tcp&#34;</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;erro ao obter a porta mapeada: %s&#34;</span>, <span style="color:#a6e22e">err</span>)
+	}
+
+	<span style="color:#a6e22e">db</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;host=%s port=%s user=%s password=%s dbname=%s sslmode=disable&#34;</span>, <span style="color:#e6db74">&#34;localhost&#34;</span>, <span style="color:#a6e22e">portaMapeada</span>.<span style="color:#a6e22e">Port</span>(), <span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#e6db74">&#34;postgres&#34;</span>)) 
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> { 
+        <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;erro ao conectar no banco de dados: %s&#34;</span>, <span style="color:#a6e22e">err</span>) 
+    }
+</code></pre></div><p>Com a conexão estabelecida, criamos uma instância do repositório e executamos o método <code>Ping()</code> para verificar a conexão com o banco de dados:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#a6e22e">repository</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">NewRepository</span>(<span style="color:#a6e22e">db</span>)
+	<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+	<span style="color:#a6e22e">err2</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">repository</span>.<span style="color:#a6e22e">Ping</span>()
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">Close</span>()
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err2</span>)
+}
+</code></pre></div><p>Esse trexo do teste realiza as seguintes ações:</p>
+<ol>
+<li>
+<p><code>repository := NewRepository(db)</code>: Uma nova instância de um repositório é criada usando a função <code>NewRepository</code>, que recebe como parâmetro a conexão de banco de dados <code>db</code> previamente estabelecida.</p>
+</li>
+<li>
+<p><code>time.Sleep(1 * time.Second)</code>: Uma pausa de 1 segundo é introduzida antes de executar o teste. Essa pausa pode ser necessária para garantir que o contêiner Docker e o banco de dados estejam prontos para aceitar conexões e realizar operações antes de prosseguir com o teste.</p>
+</li>
+<li>
+<p><code>err2 := repository.Ping()</code>: A função <code>Ping</code> é chamada no repositório para verificar se a conexão com o banco de dados está funcionando corretamente. Se houver algum problema na conexão, a função retornará um erro (<code>err2</code>).</p>
+</li>
+<li>
+<p><code>defer db.Close()</code>: A função <code>Close</code> é chamada com a palavra-chave <code>defer</code> para garantir que a conexão com o banco de dados seja fechada após a conclusão do teste, independentemente do resultado. A palavra-chave <code>defer</code> em Go permite programar a execução de uma função para o momento em que a função atual retorna. Isso é útil para garantir que os recursos sejam liberados corretamente.</p>
+</li>
+<li>
+<p><code>assert.NoError(t, err2)</code>: A função <code>NoError</code> do pacote <code>assert</code> é usada para verificar se a função <code>Ping</code> não retornou nenhum erro. Se a função <code>Ping</code> retornou um erro, o teste falhará com uma mensagem informando o erro retornado.</p>
+</li>
+</ol>
 <h2 id="conclusão">Conclusão<a hidden class="anchor" aria-hidden="true" href="#conclusão">#</a></h2>
 <p>Neste artigo, vimos como usar a biblioteca TestContainers em um projeto Golang para executar testes de integração com um banco de dados PostgreSQL em um contêiner Docker. O exemplo demonstrou como criar e configurar um contêiner, estabelecer a conexão com o banco de dados e verificar a conexão utilizando um teste Golang.</p>
 <p>A utilização de TestContainers é uma solução prática e eficiente para executar testes de integração, pois permite a criação e configuração de ambientes isolados e controlados, facilitando o desenvolvimento e a verificação da integração entre componentes de software.</p>
@@ -249,6 +289,13 @@ import ( &#34;context&#34; &#34;database/sql&#34; &#34;fmt&#34; _ &#34;github.co
   <footer class="post-footer">
     <ul class="post-tags">
     </ul>
+<nav class="paginav">
+  <a class="prev" href="https://paulosalum.github.io/posts/golang-kafka/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Implementando leitura, escrita e streaming kafka em Go.</span>
+  </a>
+</nav>
 
 
 <div class="share-buttons">

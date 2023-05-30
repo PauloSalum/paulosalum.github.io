@@ -6,7 +6,37 @@
     <description>Recent content on paulosalum.github.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>pt-br</language>
-    <lastBuildDate>Tue, 02 May 2023 15:47:17 -0300</lastBuildDate><atom:link href="https://paulosalum.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 30 May 2023 12:07:26 -0300</lastBuildDate><atom:link href="https://paulosalum.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Echo_framework</title>
+      <link>https://paulosalum.github.io/posts/echo_framework/</link>
+      <pubDate>Tue, 30 May 2023 12:07:26 -0300</pubDate>
+      
+      <guid>https://paulosalum.github.io/posts/echo_framework/</guid>
+      <description>Introdução
+Neste primeiro de dois artigos, iremos nos familiarizar com o framework Echo para Go. O Echo é uma ferramenta útil e eficiente para desenvolvedores que buscam criar aplicações web robustas e de alta performance usando Go. Iremos começar abordando a natureza e o propósito do Echo, seguido por uma exploração de suas principais funcionalidades. Este artigo é destinado tanto para aqueles que são novos no Echo, quanto para desenvolvedores Go experientes que estão curiosos sobre como o Echo pode beneficiar seus projetos.</description>
+    </item>
+    
+    <item>
+      <title>Context em Go: Um Guia Aprofundado</title>
+      <link>https://paulosalum.github.io/posts/go-context/</link>
+      <pubDate>Sat, 13 May 2023 02:47:17 -0300</pubDate>
+      
+      <guid>https://paulosalum.github.io/posts/go-context/</guid>
+      <description>Olá, pessoal! Hoje vamos falar sobre um tópico muito importante no universo Go: o pacote context. Ele é uma ferramenta poderosa que nos permite gerenciar e controlar o tempo de vida de processos e operações. Vamos mergulhar nesse assunto!
+Entendendo o Context Em Go, context é um pacote que nos permite passar valores de escopo de solicitação, prazos de cancelamento e sinalização em toda a pilha de chamadas. Ele é projetado para uso em solicitações recebidas em um servidor e é passado para funções que precisam acessar esses valores.</description>
+    </item>
+    
+    <item>
+      <title>Implementando leitura, escrita e streaming kafka em Go.</title>
+      <link>https://paulosalum.github.io/posts/golang-kafka/</link>
+      <pubDate>Wed, 03 May 2023 16:40:21 -0300</pubDate>
+      
+      <guid>https://paulosalum.github.io/posts/golang-kafka/</guid>
+      <description>Neste artigo, abordaremos a integração entre duas tecnologias populares no desenvolvimento de sistemas distribuídos: Golang e Kafka. Golang é uma linguagem de programação de alto desempenho e fácil aprendizado, ideal para desenvolvimento de aplicações concorrentes. Kafka é uma plataforma distribuída de streaming de eventos que permite a publicação e assinatura de eventos em tempo real.
+A integração entre Golang e Kafka oferece diversas vantagens, como a capacidade de processar grandes volumes de dados em tempo real, escalabilidade, tolerância a falhas e facilidade de integração com outros sistemas.</description>
+    </item>
+    
     <item>
       <title>Teste de Integração com TestContainers e Golang: Testando Conexão com Banco de Dados PostgreSQL</title>
       <link>https://paulosalum.github.io/posts/testcontainer-go-postgresql/</link>
