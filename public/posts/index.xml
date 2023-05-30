@@ -8,13 +8,12 @@
     <language>pt-br</language>
     <lastBuildDate>Tue, 30 May 2023 12:07:26 -0300</lastBuildDate><atom:link href="https://paulosalum.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Echo_framework</title>
+      <title>Introdução ao Echo Framework para Golang</title>
       <link>https://paulosalum.github.io/posts/echo_framework/</link>
       <pubDate>Tue, 30 May 2023 12:07:26 -0300</pubDate>
       
       <guid>https://paulosalum.github.io/posts/echo_framework/</guid>
-      <description>Introdução
-Neste primeiro de dois artigos, iremos nos familiarizar com o framework Echo para Go. O Echo é uma ferramenta útil e eficiente para desenvolvedores que buscam criar aplicações web robustas e de alta performance usando Go. Iremos começar abordando a natureza e o propósito do Echo, seguido por uma exploração de suas principais funcionalidades. Este artigo é destinado tanto para aqueles que são novos no Echo, quanto para desenvolvedores Go experientes que estão curiosos sobre como o Echo pode beneficiar seus projetos.</description>
+      <description>Introdução Neste primeiro de dois artigos, iremos nos familiarizar com o framework Echo para Go. O Echo é uma ferramenta útil e eficiente para desenvolvedores que buscam criar aplicações web robustas e de alta performance usando Go. Iremos começar abordando a natureza e o propósito do Echo, seguido por uma exploração de suas principais funcionalidades. Este artigo é destinado tanto para aqueles que são novos no Echo, quanto para desenvolvedores Go experientes que estão curiosos sobre como o Echo pode beneficiar seus projetos.</description>
     </item>
     
     <item>

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Implementando leitura, escrita e streaming kafka em Go. | paulosalum.github.io</title>
+<meta name="keywords" content="">
+<meta name="description" content="Neste artigo, abordaremos a integração entre duas tecnologias populares no desenvolvimento de sistemas distribuídos: Golang e Kafka. Golang é uma linguagem de programação de alto desempenho e fácil aprendizado, ideal para desenvolvimento de aplicações concorrentes. Kafka é uma plataforma distribuída de streaming de eventos que permite a publicação e assinatura de eventos em tempo real.
+A integração entre Golang e Kafka oferece diversas vantagens, como a capacidade de processar grandes volumes de dados em tempo real, escalabilidade, tolerância a falhas e facilidade de integração com outros sistemas.">
+<meta name="author" content="">
+<link rel="canonical" href="https://paulosalum.github.io/posts/golang-kafka/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.4879321a85a1040010a43a83d47225cf717d7cb0d8f565bf0bfabfd9db2f9183.css" integrity="sha256-SHkyGoWhBAAQpDqD1HIlz3F9fLDY9WW/C/q/2dsvkYM=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.f413e19d0714851f6474e7ee9632408e58ac146fbdbe62747134bea2fa3415e0.js" integrity="sha256-9BPhnQcUhR9kdOfuljJAjlisFG&#43;9vmJ0cTS&#43;ovo0FeA="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://paulosalum.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://paulosalum.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://paulosalum.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://paulosalum.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://paulosalum.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'G-9TFD54FDGY', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<meta property="og:title" content="Implementando leitura, escrita e streaming kafka em Go." />
+<meta property="og:description" content="Neste artigo, abordaremos a integração entre duas tecnologias populares no desenvolvimento de sistemas distribuídos: Golang e Kafka. Golang é uma linguagem de programação de alto desempenho e fácil aprendizado, ideal para desenvolvimento de aplicações concorrentes. Kafka é uma plataforma distribuída de streaming de eventos que permite a publicação e assinatura de eventos em tempo real.
+A integração entre Golang e Kafka oferece diversas vantagens, como a capacidade de processar grandes volumes de dados em tempo real, escalabilidade, tolerância a falhas e facilidade de integração com outros sistemas." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://paulosalum.github.io/posts/golang-kafka/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-05-03T16:40:21-03:00" />
+<meta property="article:modified_time" content="2023-05-03T16:40:21-03:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Implementando leitura, escrita e streaming kafka em Go."/>
+<meta name="twitter:description" content="Neste artigo, abordaremos a integração entre duas tecnologias populares no desenvolvimento de sistemas distribuídos: Golang e Kafka. Golang é uma linguagem de programação de alto desempenho e fácil aprendizado, ideal para desenvolvimento de aplicações concorrentes. Kafka é uma plataforma distribuída de streaming de eventos que permite a publicação e assinatura de eventos em tempo real.
+A integração entre Golang e Kafka oferece diversas vantagens, como a capacidade de processar grandes volumes de dados em tempo real, escalabilidade, tolerância a falhas e facilidade de integração com outros sistemas."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://paulosalum.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Implementando leitura, escrita e streaming kafka em Go.",
+      "item": "https://paulosalum.github.io/posts/golang-kafka/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Implementando leitura, escrita e streaming kafka em Go.",
+  "name": "Implementando leitura, escrita e streaming kafka em Go.",
+  "description": "Neste artigo, abordaremos a integração entre duas tecnologias populares no desenvolvimento de sistemas distribuídos: Golang e Kafka. Golang é uma linguagem de programação de alto desempenho e fácil aprendizado, ideal para desenvolvimento de aplicações concorrentes. Kafka é uma plataforma distribuída de streaming de eventos que permite a publicação e assinatura de eventos em tempo real.\nA integração entre Golang e Kafka oferece diversas vantagens, como a capacidade de processar grandes volumes de dados em tempo real, escalabilidade, tolerância a falhas e facilidade de integração com outros sistemas.",
+  "keywords": [
+    
+  ],
+  "articleBody": "Neste artigo, abordaremos a integração entre duas tecnologias populares no desenvolvimento de sistemas distribuídos: Golang e Kafka. Golang é uma linguagem de programação de alto desempenho e fácil aprendizado, ideal para desenvolvimento de aplicações concorrentes. Kafka é uma plataforma distribuída de streaming de eventos que permite a publicação e assinatura de eventos em tempo real.\nA integração entre Golang e Kafka oferece diversas vantagens, como a capacidade de processar grandes volumes de dados em tempo real, escalabilidade, tolerância a falhas e facilidade de integração com outros sistemas.\nComeçando com Golang e Kafka Instalando Golang e Kafka Para começar a integrar Golang e Kafka, é necessário instalar ambos em seu ambiente de desenvolvimento. A instalação do Golang pode ser realizada seguindo as instruções disponíveis no site oficial da linguagem. Já a instalação do Kafka envolve o download do Apache Kafka e a instalação do Zookeeper, que gerencia o cluster Kafka.\nAbaixo vemos um exemplo a ser executado no prompt de comando para instalação do Go e Kafka em maquina local.\n# Instalar Golang $ wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz $ tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz $ export PATH=$PATH:/usr/local/go/bin # Instalar Kafka $ wget https://downloads.apache.org/kafka/2.8.2/kafka_2.13-2.8.2.tgz $ tar -xzf kafka_2.13-2.8.2.tgz $ cd kafka_2.13-2.8.2 Configurando um cluster Kafka Após a instalação, é necessário configurar um cluster Kafka. Isso pode ser feito seguindo os passos a seguir:\n Iniciar o Zookeeper Iniciar os servidores Kafka (brokers) Criar tópicos para armazenar os eventos  # Iniciar o Zookeeper $ bin/zookeeper-server-start.sh config/zookeeper.properties # Iniciar o servidor Kafka $ bin/kafka-server-start.sh config/server.properties Para criar tópicos novos no Kafka usando a linha de comando, você pode usar a ferramenta kafka-topics.sh que acompanha a distribuição do Kafka. Siga os passos abaixo:\n Abra o terminal (no caso de um cluster remoto, conecte-se via SSH). Navegue até a pasta onde o Kafka está instalado (a pasta do Kafka deve conter a pasta bin). Use o seguinte comando para criar um novo tópico:  ./bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic  Substitua  pelo nome desejado para o seu tópico. Além disso, você pode alterar os seguintes parâmetros:\n --bootstrap-server: Endereço e porta do servidor Kafka (ex: localhost:9092 ou kafka-broker-1:9092). --replication-factor: Fator de replicação para o tópico (número de cópias do tópico mantidas no cluster). --partitions: Número de partições para o tópico (partições permitem o processamento paralelo de mensagens).  Depois de executar o comando, você receberá uma confirmação de que o tópico foi criado com sucesso.\nPara listar os tópicos existentes, você pode usar o seguinte comando:\n./bin/kafka-topics.sh --list --bootstrap-server localhost:9092 Isso listará todos os tópicos disponíveis no servidor Kafka especificado.\nCom o cluster Kafka configurado, é possível prosseguir para a criação de produtores e consumidores em Golang.\nProduzindo mensagens com Golang Criando um produtor Kafka em Golang Para criar um produtor Kafka em Golang, é necessário utilizar uma biblioteca cliente Kafka, como a confluent-kafka-go. Com a biblioteca instalada, é possível criar uma configuração de produtor e instanciar um objeto de produtor.\nimport ( \"github.com/confluentinc/confluent-kafka-go/kafka\" ) func createProducer(broker string) (*kafka.Producer, error) { config := \u0026kafka.ConfigMap{\"bootstrap.servers\": broker} producer, err := kafka.NewProducer(config) if err != nil { return nil, err } return producer, nil } A função createProducer é responsável por criar uma instância de um produtor Kafka. Ela aceita um único parâmetro, broker, que é a string contendo o endereço do broker Kafka que será utilizado.\nA função começa criando uma instância de kafka.ConfigMap e preenchendo-a com a configuração necessária para conectar ao broker Kafka. Neste exemplo, apenas a configuração \"bootstrap.servers\" é definida, usando o valor do parâmetro broker.\nEm seguida, a função kafka.NewProducer é chamada com a configuração criada (config). Essa função tenta criar uma nova instância de um produtor Kafka com a configuração fornecida e retorna dois valores: uma instância de *kafka.Producer e um valor de erro. Se a criação do produtor for bem-sucedida, o erro retornado será nil; caso contrário, o erro conterá informações sobre o problema encontrado.\nA função createProducer retorna a instância do produtor criada (producer) e o erro (err). Isso permite que quem chame essa função verifique se ocorreu algum erro durante a criação do produtor e trate-o de acordo. Se a função for bem-sucedida, o produtor Kafka criado poderá ser utilizado para enviar mensagens a tópicos no cluster Kafka.\nEnviando mensagens para um tópico Kafka Com o produtor criado, é possível enviar mensagens para um tópico Kafka. O produtor utiliza o método Produce() para enviar as mensagens, que podem ser strings, bytes ou objetos serializados.\nfunc sendMessage(producer *kafka.Producer, topic, message string) error { deliveryChan := make(chan kafka.Event) err := producer.Produce(\u0026kafka.Message{ TopicPartition: kafka.TopicPartition{Topic: \u0026topic, Partition: kafka.PartitionAny}, Value: []byte(message), }, deliveryChan) if err != nil { return err } e := deliveryChan msg := e.(*kafka.Message) return msg.TopicPartition.Error } A função sendMessage é responsável por enviar mensagens a um tópico Kafka usando um produtor Kafka. Ela aceita três parâmetros: producer, que é uma instância de *kafka.Producer previamente criada; topic, que é o tópico Kafka para o qual a mensagem será enviada; e message, que é a mensagem a ser enviada.\nA função começa criando um canal chamado deliveryChan, que será usado para receber eventos relacionados à entrega da mensagem. Em seguida, ela utiliza a função producer.Produce para produzir uma nova mensagem Kafka, especificando a partição de destino como kafka.PartitionAny (o que significa que o produtor escolherá automaticamente a partição) e o valor da mensagem usando []byte(message) para converter a string message em um slice de bytes.\nO canal deliveryChan é passado como parâmetro para a função producer.Produce, que enviará eventos relacionados à entrega da mensagem para esse canal. Se ocorrer um erro ao tentar produzir a mensagem, a função sendMessage retorna esse erro.\nApós tentar produzir a mensagem, a função aguarda um evento no canal deliveryChan. Quando um evento é recebido, a função converte o evento para uma mensagem Kafka usando msg := e.(*kafka.Message).\nPor fim, a função retorna o erro armazenado em msg.TopicPartition.Error. Se a mensagem foi entregue com sucesso, esse campo será nil; caso contrário, ele conterá detalhes sobre o erro que ocorreu durante a entrega da mensagem.\nPara utilizar a função sendMessage, basta chamar essa função com um produtor Kafka previamente criado, o tópico para o qual deseja enviar a mensagem e a própria mensagem, e lidar com possíveis erros retornados.\nConsumindo mensagens com Golang Criando um consumidor Kafka em Golang A criação de um consumidor Kafka em Golang segue um processo semelhante ao de criar um produtor. Utilizando a mesma biblioteca cliente Kafka, é preciso configurar e instanciar um objeto de consumidor.\nfunc createConsumer(broker, groupID, topic string) (*kafka.Consumer, error) { config := \u0026kafka.ConfigMap{ \"bootstrap.servers\": broker, \"group.id\": groupID, \"auto.offset.reset\": \"earliest\", } consumer, err := kafka.NewConsumer(config) if err != nil { return nil, err } return consumer, nil } A função createConsumer tem como objetivo criar um consumidor Kafka utilizando a biblioteca confluent-kafka-go. Ela aceita três parâmetros: broker, que é a URL do servidor Kafka; groupID, que identifica o grupo de consumidores ao qual o consumidor pertence; e topic, que é o tópico Kafka do qual o consumidor receberá mensagens.\nA função começa configurando um mapa de configuração kafka.ConfigMap. Esse mapa inclui as seguintes configurações:\n \"bootstrap.servers\": Define a URL do servidor Kafka que o consumidor se conectará. \"group.id\": Define o identificador do grupo de consumidores ao qual o consumidor pertencerá. Os consumidores que pertencem ao mesmo grupo trabalham juntos para processar mensagens de um tópico. Eles garantem que cada mensagem seja processada por apenas um dos consumidores do grupo. \"auto.offset.reset\": Define como o consumidor deve começar a ler as mensagens caso não haja um deslocamento comitido para um tópico específico. Neste caso, a configuração está definida como “earliest”, o que significa que o consumidor começará a processar mensagens desde o início do tópico.  Após definir o mapa de configuração, a função tenta criar um novo consumidor Kafka com a função kafka.NewConsumer(config). Se a criação for bem-sucedida, a função retorna o consumidor e nil para o erro. Caso contrário, ela retorna nil para o consumidor e o erro encontrado durante a criação.\nEssa função é útil para encapsular a lógica de criação de um consumidor Kafka e pode ser facilmente reutilizada em diferentes partes do código. Para criar um consumidor, basta chamar a função createConsumer com os parâmetros apropriados e verificar se há erros antes de começar a consumir mensagens do tópico desejado.\nRecebendo mensagens de um tópico Kafka Com o consumidor criado, é possível receber mensagens de um tópico Kafka. O consumidor utiliza o método Subscribe() para se inscrever em um tópico e o método Poll() para receber as mensagens.\nfunc receiveMessages(consumer *kafka.Consumer, topic string) error { err := consumer.Subscribe(topic, nil) if err != nil { return err } for { ev := consumer.Poll(100) if ev == nil { continue } switch msg := ev.(type) { case *kafka.Message: fmt.Printf(\"Mensagem recebida: %s\\n\", string(msg.Value)) case kafka.Error: return msg } } } A função receiveMessages é responsável por receber mensagens de um tópico Kafka usando um consumidor Kafka. Ela aceita dois parâmetros: consumer, que é uma instância de *kafka.Consumer previamente criada; e topic, que é o tópico Kafka do qual o consumidor receberá mensagens.\nA função começa tentando se inscrever no tópico especificado usando a função consumer.Subscribe(topic, nil). Se ocorrer um erro durante a inscrição, a função retorna esse erro.\nDepois de se inscrever no tópico, a função entra em um loop infinito. Dentro desse loop, ela utiliza a função consumer.Poll(100) para verificar se há novos eventos a serem processados pelo consumidor. O parâmetro 100 indica que a função Poll aguardará até 100 milissegundos por um novo evento antes de retornar nil e continuar o loop.\nQuando um evento é retornado pela função Poll, a função receiveMessages verifica o tipo desse evento usando uma instrução switch:\n Se o evento for uma mensagem do tipo *kafka.Message, a função imprime o valor da mensagem no console, usando fmt.Printf(\"Mensagem recebida: %s\\n\", string(msg.Value)). Se o evento for um erro do tipo kafka.Error, a função retorna esse erro, encerrando o loop e a função.  Essa função é útil para processar continuamente mensagens recebidas de um tópico Kafka, tratando-as conforme necessário (neste caso, imprimindo-as no console). Para utilizar a função receiveMessages, basta chamar essa função com um consumidor Kafka previamente criado e o tópico do qual deseja receber mensagens, e lidar com possíveis erros retornados.\nTópicos avançados na integração entre Golang e Kafka Trabalhando com Kafka Streams Kafka Streams é uma biblioteca para construção de aplicações e microsserviços de streaming de eventos. Com a integração entre Golang e Kafka Streams, é possível processar, transformar e agregar eventos em tempo real.\npackage main import ( \"fmt\" \"strings\" \"github.com/lovoo/goka\" \"github.com/lovoo/goka/codec\" ) var ( brokers = []string{\"localhost:9092\"} topic = \"input-topic\" group = goka.Group(\"example-group\") ) func processCallback(ctx goka.Context, msg interface{}) { input := msg.(string) output := strings.ToUpper(input) fmt.Printf(\"Mensagem processada: %s\\n\", output) } func main() { context := context.background() // Define um novo processador Goka \tprocessor, err := goka.NewProcessor(brokers, goka.DefineGroup(group, goka.Input(goka.Stream(topic), new(codec.String), processCallback), )) if err != nil { panic(err) } // Inicie o processador Goka \tif err = processor.Run(context); err != nil { panic(err) } } Neste exemplo, estamos usando a biblioteca Goka para criar um processador Kafka Stream. O processador consome mensagens do tópico “input-topic” e converte o valor de cada mensagem para maiúsculas. O resultado é impresso no console.\nA função processCallback é a função de processamento que é chamada para cada mensagem no tópico. Ele recebe um goka.Context e a mensagem (que é uma string neste caso). A função converte a mensagem para maiúsculas e imprime o resultado no console.\nNa função main, criamos um novo processador Goka usando goka.NewProcessor com o grupo e os tópicos de entrada definidos. Em seguida, iniciamos o processador com processor.Run(context).\nLidando com erros e exceções Ao trabalhar com Golang e Kafka, é essencial lidar com erros e exceções. Utilize a declaração error do Golang para tratar erros e garantir a resiliência e a estabilidade do sistema.\nAqui estão dois exemplos de tratamento de erro ao trabalhar com o produtor Kafka em Golang.\n Tratamento de erro ao criar um produtor Kafka:  producer, err := kafka.NewProducer(config) if err != nil { log.Fatalf(\"Erro ao criar produtor: %v\", err) } Este exemplo mostra como tratar erros ao criar um novo produtor Kafka. Ao chamar a função kafka.NewProducer(config), ela retorna um produtor e um erro. Se o erro não for nil, isso significa que ocorreu um problema ao criar o produtor, e o programa registra a mensagem de erro usando log.Fatalf().\nTratamento de erro ao enviar uma mensagem para um tópico Kafka:  deliveryChan := make(chan kafka.Event) producer.Produce(\u0026kafka.Message{TopicPartition: kafka.TopicPartition{Topic: \u0026topic, Partition: kafka.PartitionAny}, Value: []byte(value)}, deliveryChan) e := deliveryChan msg := e.(*kafka.Message) if msg.TopicPartition.Error != nil { log.Printf(\"Erro ao enviar mensagem: %v\", msg.TopicPartition.Error) } Este exemplo ilustra como tratar erros ao enviar mensagens para um tópico Kafka. Primeiro, um canal chamado deliveryChan é criado para receber eventos de entrega do produtor. Em seguida, a função producer.Produce() é chamada para enviar uma mensagem ao tópico Kafka.\nA função Produce() recebe dois argumentos: a mensagem a ser enviada e o canal de entrega. A mensagem é criada como uma instância de kafka.Message com a partição definida como kafka.PartitionAny (permitindo que o produtor escolha a partição) e o valor da mensagem convertido em uma fatia de bytes.\nApós enviar a mensagem, o exemplo aguarda um evento de entrega no canal deliveryChan. Quando o evento é recebido, ele é convertido de volta para uma mensagem Kafka usando a conversão de tipo e.(*kafka.Message). Se msg.TopicPartition.Error não for nil, isso indica que ocorreu um erro ao enviar a mensagem, e o programa registra a mensagem de erro usando log.Printf().\nConclusão Em conclusão, a combinação de Golang e Kafka oferece um excelente desempenho, escalabilidade e confiabilidade para criar sistemas de streaming de dados distribuídos de alta capacidade. Ambos são amplamente utilizados em empresas de tecnologia e organizações de vários tamanhos.\nUm exemplo notável de um sistema de larga escala que utiliza Kafka e Golang é o Uber. A plataforma de transporte utiliza Kafka para processar e analisar grandes volumes de dados em tempo real, como localizações de veículos e solicitações de viagens. Para lidar com essa grande quantidade de dados, o Uber emprega Golang em vários de seus microserviços devido ao seu alto desempenho e eficiência na utilização de recursos.\nOutra empresa que usa Kafka e Golang é a Cloudflare, uma empresa de segurança e desempenho na web. A Cloudflare utiliza Kafka para gerenciar e analisar bilhões de eventos de log por dia, ajudando a identificar e bloquear ameaças de segurança. Golang desempenha um papel crucial na criação de processadores de streaming de dados eficientes e escaláveis que podem lidar com essa carga de trabalho massiva.\nEsses exemplos demonstram que a integração de Golang e Kafka é uma escolha comprovada e eficaz para construir sistemas distribuídos de larga escala. A combinação dessas duas tecnologias oferece uma base sólida para o desenvolvimento de soluções escaláveis e confiáveis que podem enfrentar os desafios do processamento de dados em tempo real em ambientes altamente exigentes.\n",
+  "wordCount" : "2471",
+  "inLanguage": "en",
+  "datePublished": "2023-05-03T16:40:21-03:00",
+  "dateModified": "2023-05-03T16:40:21-03:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://paulosalum.github.io/posts/golang-kafka/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "paulosalum.github.io",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://paulosalum.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class=" dark" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://paulosalum.github.io/" accesskey="h" title="paulosalum.github.io (Alt + H)">paulosalum.github.io</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://paulosalum.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://paulosalum.github.io/posts/">Posts</a></div>
+    <h1 class="post-title">
+      Implementando leitura, escrita e streaming kafka em Go.
+    </h1>
+    <div class="post-meta"><span title='2023-05-03 16:40:21 -0300 -03'>May 3, 2023</span>&nbsp;·&nbsp;12 min
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#come%c3%a7ando-com-golang-e-kafka" aria-label="Começando com Golang e Kafka">Começando com Golang e Kafka</a><ul>
+                        
+                <li>
+                    <a href="#instalando-golang-e-kafka" aria-label="Instalando Golang e Kafka">Instalando Golang e Kafka</a></li>
+                <li>
+                    <a href="#configurando-um-cluster-kafka" aria-label="Configurando um cluster Kafka">Configurando um cluster Kafka</a></li></ul>
+                </li>
+                <li>
+                    <a href="#produzindo-mensagens-com-golang" aria-label="Produzindo mensagens com Golang">Produzindo mensagens com Golang</a><ul>
+                        
+                <li>
+                    <a href="#criando-um-produtor-kafka-em-golang" aria-label="Criando um produtor Kafka em Golang">Criando um produtor Kafka em Golang</a></li>
+                <li>
+                    <a href="#enviando-mensagens-para-um-t%c3%b3pico-kafka" aria-label="Enviando mensagens para um tópico Kafka">Enviando mensagens para um tópico Kafka</a></li></ul>
+                </li>
+                <li>
+                    <a href="#consumindo-mensagens-com-golang" aria-label="Consumindo mensagens com Golang">Consumindo mensagens com Golang</a><ul>
+                        
+                <li>
+                    <a href="#criando-um-consumidor-kafka-em-golang" aria-label="Criando um consumidor Kafka em Golang">Criando um consumidor Kafka em Golang</a></li>
+                <li>
+                    <a href="#recebendo-mensagens-de-um-t%c3%b3pico-kafka" aria-label="Recebendo mensagens de um tópico Kafka">Recebendo mensagens de um tópico Kafka</a></li></ul>
+                </li>
+                <li>
+                    <a href="#t%c3%b3picos-avan%c3%a7ados-na-integra%c3%a7%c3%a3o-entre-golang-e-kafka" aria-label="Tópicos avançados na integração entre Golang e Kafka">Tópicos avançados na integração entre Golang e Kafka</a><ul>
+                        
+                <li>
+                    <a href="#trabalhando-com-kafka-streams" aria-label="Trabalhando com Kafka Streams">Trabalhando com Kafka Streams</a></li>
+                <li>
+                    <a href="#lidando-com-erros-e-exce%c3%a7%c3%b5es" aria-label="Lidando com erros e exceções">Lidando com erros e exceções</a></li></ul>
+                </li>
+                <li>
+                    <a href="#conclus%c3%a3o" aria-label="Conclusão">Conclusão</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>Neste artigo, abordaremos a integração entre duas tecnologias populares no desenvolvimento de sistemas distribuídos: Golang e Kafka. Golang é uma linguagem de programação de alto desempenho e fácil aprendizado, ideal para desenvolvimento de aplicações concorrentes. Kafka é uma plataforma distribuída de streaming de eventos que permite a publicação e assinatura de eventos em tempo real.</p>
+<p>A integração entre Golang e Kafka oferece diversas vantagens, como a capacidade de processar grandes volumes de dados em tempo real, escalabilidade, tolerância a falhas e facilidade de integração com outros sistemas.</p>
+<h2 id="começando-com-golang-e-kafka">Começando com Golang e Kafka<a hidden class="anchor" aria-hidden="true" href="#começando-com-golang-e-kafka">#</a></h2>
+<h3 id="instalando-golang-e-kafka">Instalando Golang e Kafka<a hidden class="anchor" aria-hidden="true" href="#instalando-golang-e-kafka">#</a></h3>
+<p>Para começar a integrar Golang e Kafka, é necessário instalar ambos em seu ambiente de desenvolvimento. A instalação do Golang pode ser realizada seguindo as instruções disponíveis no site oficial da linguagem. Já a instalação do Kafka envolve o download do Apache Kafka e a instalação do Zookeeper, que gerencia o cluster Kafka.</p>
+<p>Abaixo vemos um exemplo a ser executado no prompt de comando para instalação do Go e Kafka em maquina local.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># Instalar Golang</span>
+$ wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
+$ tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
+$ export PATH<span style="color:#f92672">=</span>$PATH:/usr/local/go/bin
+
+<span style="color:#75715e"># Instalar Kafka</span>
+$ wget https://downloads.apache.org/kafka/2.8.2/kafka_2.13-2.8.2.tgz
+$ tar -xzf kafka_2.13-2.8.2.tgz
+$ cd kafka_2.13-2.8.2
+</code></pre></div><h3 id="configurando-um-cluster-kafka">Configurando um cluster Kafka<a hidden class="anchor" aria-hidden="true" href="#configurando-um-cluster-kafka">#</a></h3>
+<p>Após a instalação, é necessário configurar um cluster Kafka. Isso pode ser feito seguindo os passos a seguir:</p>
+<ol>
+<li>Iniciar o Zookeeper</li>
+<li>Iniciar os servidores Kafka (brokers)</li>
+<li>Criar tópicos para armazenar os eventos</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># Iniciar o Zookeeper</span>
+$ bin/zookeeper-server-start.sh config/zookeeper.properties
+
+<span style="color:#75715e"># Iniciar o servidor Kafka</span>
+$ bin/kafka-server-start.sh config/server.properties
+</code></pre></div><p>Para criar tópicos novos no Kafka usando a linha de comando, você pode usar a ferramenta <code>kafka-topics.sh</code> que acompanha a distribuição do Kafka. Siga os passos abaixo:</p>
+<ol>
+<li>Abra o terminal (no caso de um cluster remoto, conecte-se via SSH).</li>
+<li>Navegue até a pasta onde o Kafka está instalado (a pasta do Kafka deve conter a pasta <code>bin</code>).</li>
+<li>Use o seguinte comando para criar um novo tópico:</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">./bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor <span style="color:#ae81ff">1</span> --partitions <span style="color:#ae81ff">1</span> --topic &lt;nome_do_topico&gt;
+</code></pre></div><p>Substitua <code>&lt;nome_do_topico&gt;</code> pelo nome desejado para o seu tópico. Além disso, você pode alterar os seguintes parâmetros:</p>
+<ul>
+<li><code>--bootstrap-server</code>: Endereço e porta do servidor Kafka (ex: <code>localhost:9092</code> ou <code>kafka-broker-1:9092</code>).</li>
+<li><code>--replication-factor</code>: Fator de replicação para o tópico (número de cópias do tópico mantidas no cluster).</li>
+<li><code>--partitions</code>: Número de partições para o tópico (partições permitem o processamento paralelo de mensagens).</li>
+</ul>
+<p>Depois de executar o comando, você receberá uma confirmação de que o tópico foi criado com sucesso.</p>
+<p>Para listar os tópicos existentes, você pode usar o seguinte comando:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">./bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+</code></pre></div><p>Isso listará todos os tópicos disponíveis no servidor Kafka especificado.</p>
+<p>Com o cluster Kafka configurado, é possível prosseguir para a criação de produtores e consumidores em Golang.</p>
+<h2 id="produzindo-mensagens-com-golang">Produzindo mensagens com Golang<a hidden class="anchor" aria-hidden="true" href="#produzindo-mensagens-com-golang">#</a></h2>
+<h3 id="criando-um-produtor-kafka-em-golang">Criando um produtor Kafka em Golang<a hidden class="anchor" aria-hidden="true" href="#criando-um-produtor-kafka-em-golang">#</a></h3>
+<p>Para criar um produtor Kafka em Golang, é necessário utilizar uma biblioteca cliente Kafka, como a <code>confluent-kafka-go</code>. Com a biblioteca instalada, é possível criar uma configuração de produtor e instanciar um objeto de produtor.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;github.com/confluentinc/confluent-kafka-go/kafka&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">createProducer</span>(<span style="color:#a6e22e">broker</span> <span style="color:#66d9ef">string</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Producer</span>, <span style="color:#66d9ef">error</span>) {
+	<span style="color:#a6e22e">config</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">ConfigMap</span>{<span style="color:#e6db74">&#34;bootstrap.servers&#34;</span>: <span style="color:#a6e22e">broker</span>}
+	<span style="color:#a6e22e">producer</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">NewProducer</span>(<span style="color:#a6e22e">config</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">err</span>
+	}
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">producer</span>, <span style="color:#66d9ef">nil</span>
+}
+</code></pre></div><p>A função <code>createProducer</code> é responsável por criar uma instância de um produtor Kafka. Ela aceita um único parâmetro, <code>broker</code>, que é a string contendo o endereço do broker Kafka que será utilizado.</p>
+<p>A função começa criando uma instância de <code>kafka.ConfigMap</code> e preenchendo-a com a configuração necessária para conectar ao broker Kafka. Neste exemplo, apenas a configuração <code>&quot;bootstrap.servers&quot;</code> é definida, usando o valor do parâmetro <code>broker</code>.</p>
+<p>Em seguida, a função <code>kafka.NewProducer</code> é chamada com a configuração criada (<code>config</code>). Essa função tenta criar uma nova instância de um produtor Kafka com a configuração fornecida e retorna dois valores: uma instância de <code>*kafka.Producer</code> e um valor de erro. Se a criação do produtor for bem-sucedida, o erro retornado será <code>nil</code>; caso contrário, o erro conterá informações sobre o problema encontrado.</p>
+<p>A função <code>createProducer</code> retorna a instância do produtor criada (<code>producer</code>) e o erro (<code>err</code>). Isso permite que quem chame essa função verifique se ocorreu algum erro durante a criação do produtor e trate-o de acordo. Se a função for bem-sucedida, o produtor Kafka criado poderá ser utilizado para enviar mensagens a tópicos no cluster Kafka.</p>
+<h3 id="enviando-mensagens-para-um-tópico-kafka">Enviando mensagens para um tópico Kafka<a hidden class="anchor" aria-hidden="true" href="#enviando-mensagens-para-um-tópico-kafka">#</a></h3>
+<p>Com o produtor criado, é possível enviar mensagens para um tópico Kafka. O produtor utiliza o método <code>Produce()</code> para enviar as mensagens, que podem ser strings, bytes ou objetos serializados.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">sendMessage</span>(<span style="color:#a6e22e">producer</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Producer</span>, <span style="color:#a6e22e">topic</span>, <span style="color:#a6e22e">message</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span> {
+	<span style="color:#a6e22e">deliveryChan</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Event</span>)
+	<span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">producer</span>.<span style="color:#a6e22e">Produce</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Message</span>{
+		<span style="color:#a6e22e">TopicPartition</span>: <span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">TopicPartition</span>{<span style="color:#a6e22e">Topic</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">topic</span>, <span style="color:#a6e22e">Partition</span>: <span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">PartitionAny</span>},
+		<span style="color:#a6e22e">Value</span>:          []byte(<span style="color:#a6e22e">message</span>),
+	}, <span style="color:#a6e22e">deliveryChan</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+	}
+	<span style="color:#a6e22e">e</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">deliveryChan</span>
+	<span style="color:#a6e22e">msg</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">e</span>.(<span style="color:#f92672">*</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Message</span>)
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">msg</span>.<span style="color:#a6e22e">TopicPartition</span>.<span style="color:#a6e22e">Error</span>
+}
+</code></pre></div><p>A função <code>sendMessage</code> é responsável por enviar mensagens a um tópico Kafka usando um produtor Kafka. Ela aceita três parâmetros: <code>producer</code>, que é uma instância de <code>*kafka.Producer</code> previamente criada; <code>topic</code>, que é o tópico Kafka para o qual a mensagem será enviada; e <code>message</code>, que é a mensagem a ser enviada.</p>
+<p>A função começa criando um canal chamado <code>deliveryChan</code>, que será usado para receber eventos relacionados à entrega da mensagem. Em seguida, ela utiliza a função <code>producer.Produce</code> para produzir uma nova mensagem Kafka, especificando a partição de destino como <code>kafka.PartitionAny</code> (o que significa que o produtor escolherá automaticamente a partição) e o valor da mensagem usando <code>[]byte(message)</code> para converter a string <code>message</code> em um slice de bytes.</p>
+<p>O canal <code>deliveryChan</code> é passado como parâmetro para a função <code>producer.Produce</code>, que enviará eventos relacionados à entrega da mensagem para esse canal. Se ocorrer um erro ao tentar produzir a mensagem, a função <code>sendMessage</code> retorna esse erro.</p>
+<p>Após tentar produzir a mensagem, a função aguarda um evento no canal <code>deliveryChan</code>. Quando um evento é recebido, a função converte o evento para uma mensagem Kafka usando <code>msg := e.(*kafka.Message)</code>.</p>
+<p>Por fim, a função retorna o erro armazenado em <code>msg.TopicPartition.Error</code>. Se a mensagem foi entregue com sucesso, esse campo será <code>nil</code>; caso contrário, ele conterá detalhes sobre o erro que ocorreu durante a entrega da mensagem.</p>
+<p>Para utilizar a função <code>sendMessage</code>, basta chamar essa função com um produtor Kafka previamente criado, o tópico para o qual deseja enviar a mensagem e a própria mensagem, e lidar com possíveis erros retornados.</p>
+<h2 id="consumindo-mensagens-com-golang">Consumindo mensagens com Golang<a hidden class="anchor" aria-hidden="true" href="#consumindo-mensagens-com-golang">#</a></h2>
+<h3 id="criando-um-consumidor-kafka-em-golang">Criando um consumidor Kafka em Golang<a hidden class="anchor" aria-hidden="true" href="#criando-um-consumidor-kafka-em-golang">#</a></h3>
+<p>A criação de um consumidor Kafka em Golang segue um processo semelhante ao de criar um produtor. Utilizando a mesma biblioteca cliente Kafka, é preciso configurar e instanciar um objeto de consumidor.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">createConsumer</span>(<span style="color:#a6e22e">broker</span>, <span style="color:#a6e22e">groupID</span>, <span style="color:#a6e22e">topic</span> <span style="color:#66d9ef">string</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Consumer</span>, <span style="color:#66d9ef">error</span>) {
+	<span style="color:#a6e22e">config</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">ConfigMap</span>{
+		<span style="color:#e6db74">&#34;bootstrap.servers&#34;</span>: <span style="color:#a6e22e">broker</span>,
+		<span style="color:#e6db74">&#34;group.id&#34;</span>:          <span style="color:#a6e22e">groupID</span>,
+		<span style="color:#e6db74">&#34;auto.offset.reset&#34;</span>: <span style="color:#e6db74">&#34;earliest&#34;</span>,
+	}
+	<span style="color:#a6e22e">consumer</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">NewConsumer</span>(<span style="color:#a6e22e">config</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">err</span>
+	}
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">consumer</span>, <span style="color:#66d9ef">nil</span>
+}
+</code></pre></div><p>A função <code>createConsumer</code> tem como objetivo criar um consumidor Kafka utilizando a biblioteca confluent-kafka-go. Ela aceita três parâmetros: <code>broker</code>, que é a URL do servidor Kafka; <code>groupID</code>, que identifica o grupo de consumidores ao qual o consumidor pertence; e <code>topic</code>, que é o tópico Kafka do qual o consumidor receberá mensagens.</p>
+<p>A função começa configurando um mapa de configuração <code>kafka.ConfigMap</code>. Esse mapa inclui as seguintes configurações:</p>
+<ol>
+<li><code>&quot;bootstrap.servers&quot;</code>: Define a URL do servidor Kafka que o consumidor se conectará.</li>
+<li><code>&quot;group.id&quot;</code>: Define o identificador do grupo de consumidores ao qual o consumidor pertencerá. Os consumidores que pertencem ao mesmo grupo trabalham juntos para processar mensagens de um tópico. Eles garantem que cada mensagem seja processada por apenas um dos consumidores do grupo.</li>
+<li><code>&quot;auto.offset.reset&quot;</code>: Define como o consumidor deve começar a ler as mensagens caso não haja um deslocamento comitido para um tópico específico. Neste caso, a configuração está definida como &ldquo;earliest&rdquo;, o que significa que o consumidor começará a processar mensagens desde o início do tópico.</li>
+</ol>
+<p>Após definir o mapa de configuração, a função tenta criar um novo consumidor Kafka com a função <code>kafka.NewConsumer(config)</code>. Se a criação for bem-sucedida, a função retorna o consumidor e <code>nil</code> para o erro. Caso contrário, ela retorna <code>nil</code> para o consumidor e o erro encontrado durante a criação.</p>
+<p>Essa função é útil para encapsular a lógica de criação de um consumidor Kafka e pode ser facilmente reutilizada em diferentes partes do código. Para criar um consumidor, basta chamar a função <code>createConsumer</code> com os parâmetros apropriados e verificar se há erros antes de começar a consumir mensagens do tópico desejado.</p>
+<h3 id="recebendo-mensagens-de-um-tópico-kafka">Recebendo mensagens de um tópico Kafka<a hidden class="anchor" aria-hidden="true" href="#recebendo-mensagens-de-um-tópico-kafka">#</a></h3>
+<p>Com o consumidor criado, é possível receber mensagens de um tópico Kafka. O consumidor utiliza o método <code>Subscribe()</code> para se inscrever em um tópico e o método <code>Poll()</code> para receber as mensagens.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">receiveMessages</span>(<span style="color:#a6e22e">consumer</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Consumer</span>, <span style="color:#a6e22e">topic</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span> {
+	<span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">consumer</span>.<span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">topic</span>, <span style="color:#66d9ef">nil</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+	}
+
+	<span style="color:#66d9ef">for</span> {
+		<span style="color:#a6e22e">ev</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">consumer</span>.<span style="color:#a6e22e">Poll</span>(<span style="color:#ae81ff">100</span>)
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">ev</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+			<span style="color:#66d9ef">continue</span>
+		}
+
+		<span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">msg</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">ev</span>.(<span style="color:#66d9ef">type</span>) {
+		<span style="color:#66d9ef">case</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Message</span>:
+			<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;Mensagem recebida: %s\n&#34;</span>, string(<span style="color:#a6e22e">msg</span>.<span style="color:#a6e22e">Value</span>))
+		<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Error</span>:
+			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">msg</span>
+		}
+	}
+}
+</code></pre></div><p>A função <code>receiveMessages</code> é responsável por receber mensagens de um tópico Kafka usando um consumidor Kafka. Ela aceita dois parâmetros: <code>consumer</code>, que é uma instância de <code>*kafka.Consumer</code> previamente criada; e <code>topic</code>, que é o tópico Kafka do qual o consumidor receberá mensagens.</p>
+<p>A função começa tentando se inscrever no tópico especificado usando a função <code>consumer.Subscribe(topic, nil)</code>. Se ocorrer um erro durante a inscrição, a função retorna esse erro.</p>
+<p>Depois de se inscrever no tópico, a função entra em um loop infinito. Dentro desse loop, ela utiliza a função <code>consumer.Poll(100)</code> para verificar se há novos eventos a serem processados pelo consumidor. O parâmetro <code>100</code> indica que a função <code>Poll</code> aguardará até 100 milissegundos por um novo evento antes de retornar <code>nil</code> e continuar o loop.</p>
+<p>Quando um evento é retornado pela função <code>Poll</code>, a função <code>receiveMessages</code> verifica o tipo desse evento usando uma instrução <code>switch</code>:</p>
+<ol>
+<li>Se o evento for uma mensagem do tipo <code>*kafka.Message</code>, a função imprime o valor da mensagem no console, usando <code>fmt.Printf(&quot;Mensagem recebida: %s\n&quot;, string(msg.Value))</code>.</li>
+<li>Se o evento for um erro do tipo <code>kafka.Error</code>, a função retorna esse erro, encerrando o loop e a função.</li>
+</ol>
+<p>Essa função é útil para processar continuamente mensagens recebidas de um tópico Kafka, tratando-as conforme necessário (neste caso, imprimindo-as no console). Para utilizar a função <code>receiveMessages</code>, basta chamar essa função com um consumidor Kafka previamente criado e o tópico do qual deseja receber mensagens, e lidar com possíveis erros retornados.</p>
+<h2 id="tópicos-avançados-na-integração-entre-golang-e-kafka">Tópicos avançados na integração entre Golang e Kafka<a hidden class="anchor" aria-hidden="true" href="#tópicos-avançados-na-integração-entre-golang-e-kafka">#</a></h2>
+<h3 id="trabalhando-com-kafka-streams">Trabalhando com Kafka Streams<a hidden class="anchor" aria-hidden="true" href="#trabalhando-com-kafka-streams">#</a></h3>
+<p>Kafka Streams é uma biblioteca para construção de aplicações e microsserviços de streaming de eventos. Com a integração entre Golang e Kafka Streams, é possível processar, transformar e agregar eventos em tempo real.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;fmt&#34;</span>
+	<span style="color:#e6db74">&#34;strings&#34;</span>
+
+	<span style="color:#e6db74">&#34;github.com/lovoo/goka&#34;</span>
+	<span style="color:#e6db74">&#34;github.com/lovoo/goka/codec&#34;</span>
+)
+
+<span style="color:#66d9ef">var</span> (
+	<span style="color:#a6e22e">brokers</span> = []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;localhost:9092&#34;</span>}
+	<span style="color:#a6e22e">topic</span>   = <span style="color:#e6db74">&#34;input-topic&#34;</span>
+	<span style="color:#a6e22e">group</span>   = <span style="color:#a6e22e">goka</span>.<span style="color:#a6e22e">Group</span>(<span style="color:#e6db74">&#34;example-group&#34;</span>)
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">processCallback</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">goka</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">msg</span> <span style="color:#66d9ef">interface</span>{}) {
+	<span style="color:#a6e22e">input</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">msg</span>.(<span style="color:#66d9ef">string</span>)
+	<span style="color:#a6e22e">output</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">ToUpper</span>(<span style="color:#a6e22e">input</span>)
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;Mensagem processada: %s\n&#34;</span>, <span style="color:#a6e22e">output</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">context</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">background</span>()
+	<span style="color:#75715e">// Define um novo processador Goka
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">processor</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">goka</span>.<span style="color:#a6e22e">NewProcessor</span>(<span style="color:#a6e22e">brokers</span>, <span style="color:#a6e22e">goka</span>.<span style="color:#a6e22e">DefineGroup</span>(<span style="color:#a6e22e">group</span>,
+		<span style="color:#a6e22e">goka</span>.<span style="color:#a6e22e">Input</span>(<span style="color:#a6e22e">goka</span>.<span style="color:#a6e22e">Stream</span>(<span style="color:#a6e22e">topic</span>), new(<span style="color:#a6e22e">codec</span>.<span style="color:#a6e22e">String</span>), <span style="color:#a6e22e">processCallback</span>),
+	))
+
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		panic(<span style="color:#a6e22e">err</span>)
+	}
+
+	<span style="color:#75715e">// Inicie o processador Goka
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">processor</span>.<span style="color:#a6e22e">Run</span>(<span style="color:#a6e22e">context</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		panic(<span style="color:#a6e22e">err</span>)
+	}
+}
+
+</code></pre></div><p>Neste exemplo, estamos usando a biblioteca Goka para criar um processador Kafka Stream. O processador consome mensagens do tópico &ldquo;input-topic&rdquo; e converte o valor de cada mensagem para maiúsculas. O resultado é impresso no console.</p>
+<p>A função <code>processCallback</code> é a função de processamento que é chamada para cada mensagem no tópico. Ele recebe um <code>goka.Context</code> e a mensagem (que é uma string neste caso). A função converte a mensagem para maiúsculas e imprime o resultado no console.</p>
+<p>Na função <code>main</code>, criamos um novo processador Goka usando <code>goka.NewProcessor</code> com o grupo e os tópicos de entrada definidos. Em seguida, iniciamos o processador com <code>processor.Run(context)</code>.</p>
+<h3 id="lidando-com-erros-e-exceções">Lidando com erros e exceções<a hidden class="anchor" aria-hidden="true" href="#lidando-com-erros-e-exceções">#</a></h3>
+<p>Ao trabalhar com Golang e Kafka, é essencial lidar com erros e exceções. Utilize a declaração <code>error</code> do Golang para tratar erros e garantir a resiliência e a estabilidade do sistema.</p>
+<p>Aqui estão dois exemplos de tratamento de erro ao trabalhar com o produtor Kafka em Golang.</p>
+<ol>
+<li><strong>Tratamento de erro ao criar um produtor Kafka:</strong></li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">producer</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">NewProducer</span>(<span style="color:#a6e22e">config</span>)
+<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;Erro ao criar produtor: %v&#34;</span>, <span style="color:#a6e22e">err</span>)
+}
+</code></pre></div><p>Este exemplo mostra como tratar erros ao criar um novo produtor Kafka. Ao chamar a função <code>kafka.NewProducer(config)</code>, ela retorna um produtor e um erro. Se o erro não for <code>nil</code>, isso significa que ocorreu um problema ao criar o produtor, e o programa registra a mensagem de erro usando <code>log.Fatalf()</code>.</p>
+<ol start="2">
+<li><strong>Tratamento de erro ao enviar uma mensagem para um tópico Kafka:</strong></li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">deliveryChan</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Event</span>)
+<span style="color:#a6e22e">producer</span>.<span style="color:#a6e22e">Produce</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Message</span>{<span style="color:#a6e22e">TopicPartition</span>: <span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">TopicPartition</span>{<span style="color:#a6e22e">Topic</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">topic</span>, <span style="color:#a6e22e">Partition</span>: <span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">PartitionAny</span>}, <span style="color:#a6e22e">Value</span>: []byte(<span style="color:#a6e22e">value</span>)}, <span style="color:#a6e22e">deliveryChan</span>)
+
+<span style="color:#a6e22e">e</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">deliveryChan</span>
+<span style="color:#a6e22e">msg</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">e</span>.(<span style="color:#f92672">*</span><span style="color:#a6e22e">kafka</span>.<span style="color:#a6e22e">Message</span>)
+<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">msg</span>.<span style="color:#a6e22e">TopicPartition</span>.<span style="color:#a6e22e">Error</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;Erro ao enviar mensagem: %v&#34;</span>, <span style="color:#a6e22e">msg</span>.<span style="color:#a6e22e">TopicPartition</span>.<span style="color:#a6e22e">Error</span>)
+}
+</code></pre></div><p>Este exemplo ilustra como tratar erros ao enviar mensagens para um tópico Kafka. Primeiro, um canal chamado <code>deliveryChan</code> é criado para receber eventos de entrega do produtor. Em seguida, a função <code>producer.Produce()</code> é chamada para enviar uma mensagem ao tópico Kafka.</p>
+<p>A função <code>Produce()</code> recebe dois argumentos: a mensagem a ser enviada e o canal de entrega. A mensagem é criada como uma instância de <code>kafka.Message</code> com a partição definida como <code>kafka.PartitionAny</code> (permitindo que o produtor escolha a partição) e o valor da mensagem convertido em uma fatia de bytes.</p>
+<p>Após enviar a mensagem, o exemplo aguarda um evento de entrega no canal <code>deliveryChan</code>. Quando o evento é recebido, ele é convertido de volta para uma mensagem Kafka usando a conversão de tipo <code>e.(*kafka.Message)</code>. Se <code>msg.TopicPartition.Error</code> não for <code>nil</code>, isso indica que ocorreu um erro ao enviar a mensagem, e o programa registra a mensagem de erro usando <code>log.Printf()</code>.</p>
+<h2 id="conclusão">Conclusão<a hidden class="anchor" aria-hidden="true" href="#conclusão">#</a></h2>
+<p>Em conclusão, a combinação de Golang e Kafka oferece um excelente desempenho, escalabilidade e confiabilidade para criar sistemas de streaming de dados distribuídos de alta capacidade. Ambos são amplamente utilizados em empresas de tecnologia e organizações de vários tamanhos.</p>
+<p>Um exemplo notável de um sistema de larga escala que utiliza Kafka e Golang é o Uber. A plataforma de transporte utiliza Kafka para processar e analisar grandes volumes de dados em tempo real, como localizações de veículos e solicitações de viagens. Para lidar com essa grande quantidade de dados, o Uber emprega Golang em vários de seus microserviços devido ao seu alto desempenho e eficiência na utilização de recursos.</p>
+<p>Outra empresa que usa Kafka e Golang é a Cloudflare, uma empresa de segurança e desempenho na web. A Cloudflare utiliza Kafka para gerenciar e analisar bilhões de eventos de log por dia, ajudando a identificar e bloquear ameaças de segurança. Golang desempenha um papel crucial na criação de processadores de streaming de dados eficientes e escaláveis que podem lidar com essa carga de trabalho massiva.</p>
+<p>Esses exemplos demonstram que a integração de Golang e Kafka é uma escolha comprovada e eficaz para construir sistemas distribuídos de larga escala. A combinação dessas duas tecnologias oferece uma base sólida para o desenvolvimento de soluções escaláveis e confiáveis que podem enfrentar os desafios do processamento de dados em tempo real em ambientes altamente exigentes.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://paulosalum.github.io/posts/go-context/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Context em Go: Um Guia Aprofundado</span>
+  </a>
+  <a class="next" href="https://paulosalum.github.io/posts/testcontainer-go-postgresql/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Teste de Integração com TestContainers e Golang: Testando Conexão com Banco de Dados PostgreSQL</span>
+  </a>
+</nav>
+
+
+<div class="share-buttons">
+    <a target="_blank" rel="noopener noreferrer" aria-label="share Implementando leitura, escrita e streaming kafka em Go. on twitter"
+        href="https://twitter.com/intent/tweet/?text=Implementando%20leitura%2c%20escrita%20e%20streaming%20kafka%20em%20Go.&amp;url=https%3a%2f%2fpaulosalum.github.io%2fposts%2fgolang-kafka%2f&amp;hashtags=">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-253.927,424.544c135.939,0 210.268,-112.643 210.268,-210.268c0,-3.218 0,-6.437 -0.153,-9.502c14.406,-10.421 26.973,-23.448 36.935,-38.314c-13.18,5.824 -27.433,9.809 -42.452,11.648c15.326,-9.196 26.973,-23.602 32.49,-40.92c-14.252,8.429 -30.038,14.56 -46.896,17.931c-13.487,-14.406 -32.644,-23.295 -53.946,-23.295c-40.767,0 -73.87,33.104 -73.87,73.87c0,5.824 0.613,11.494 1.992,16.858c-61.456,-3.065 -115.862,-32.49 -152.337,-77.241c-6.284,10.881 -9.962,23.601 -9.962,37.088c0,25.594 13.027,48.276 32.95,61.456c-12.107,-0.307 -23.448,-3.678 -33.41,-9.196l0,0.92c0,35.862 25.441,65.594 59.311,72.49c-6.13,1.686 -12.72,2.606 -19.464,2.606c-4.751,0 -9.348,-0.46 -13.946,-1.38c9.349,29.426 36.628,50.728 68.965,51.341c-25.287,19.771 -57.164,31.571 -91.8,31.571c-5.977,0 -11.801,-0.306 -17.625,-1.073c32.337,21.15 71.264,33.41 112.95,33.41Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share Implementando leitura, escrita e streaming kafka em Go. on linkedin"
+        href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fpaulosalum.github.io%2fposts%2fgolang-kafka%2f&amp;title=Implementando%20leitura%2c%20escrita%20e%20streaming%20kafka%20em%20Go.&amp;summary=Implementando%20leitura%2c%20escrita%20e%20streaming%20kafka%20em%20Go.&amp;source=https%3a%2f%2fpaulosalum.github.io%2fposts%2fgolang-kafka%2f">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-288.985,423.278l0,-225.717l-75.04,0l0,225.717l75.04,0Zm270.539,0l0,-129.439c0,-69.333 -37.018,-101.586 -86.381,-101.586c-39.804,0 -57.634,21.891 -67.617,37.266l0,-31.958l-75.021,0c0.995,21.181 0,225.717 0,225.717l75.02,0l0,-126.056c0,-6.748 0.486,-13.492 2.474,-18.315c5.414,-13.475 17.767,-27.434 38.494,-27.434c27.135,0 38.007,20.707 38.007,51.037l0,120.768l75.024,0Zm-307.552,-334.556c-25.674,0 -42.448,16.879 -42.448,39.002c0,21.658 16.264,39.002 41.455,39.002l0.484,0c26.165,0 42.452,-17.344 42.452,-39.002c-0.485,-22.092 -16.241,-38.954 -41.943,-39.002Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share Implementando leitura, escrita e streaming kafka em Go. on reddit"
+        href="https://reddit.com/submit?url=https%3a%2f%2fpaulosalum.github.io%2fposts%2fgolang-kafka%2f&title=Implementando%20leitura%2c%20escrita%20e%20streaming%20kafka%20em%20Go.">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-3.446,265.638c0,-22.964 -18.616,-41.58 -41.58,-41.58c-11.211,0 -21.361,4.457 -28.841,11.666c-28.424,-20.508 -67.586,-33.757 -111.204,-35.278l18.941,-89.121l61.884,13.157c0.756,15.734 13.642,28.29 29.56,28.29c16.407,0 29.706,-13.299 29.706,-29.701c0,-16.403 -13.299,-29.702 -29.706,-29.702c-11.666,0 -21.657,6.792 -26.515,16.578l-69.105,-14.69c-1.922,-0.418 -3.939,-0.042 -5.585,1.036c-1.658,1.073 -2.811,2.761 -3.224,4.686l-21.152,99.438c-44.258,1.228 -84.046,14.494 -112.837,35.232c-7.468,-7.164 -17.589,-11.591 -28.757,-11.591c-22.965,0 -41.585,18.616 -41.585,41.58c0,16.896 10.095,31.41 24.568,37.918c-0.639,4.135 -0.99,8.328 -0.99,12.576c0,63.977 74.469,115.836 166.33,115.836c91.861,0 166.334,-51.859 166.334,-115.836c0,-4.218 -0.347,-8.387 -0.977,-12.493c14.564,-6.47 24.735,-21.034 24.735,-38.001Zm-119.474,108.193c-20.27,20.241 -59.115,21.816 -70.534,21.816c-11.428,0 -50.277,-1.575 -70.522,-21.82c-3.007,-3.008 -3.007,-7.882 0,-10.889c3.003,-2.999 7.882,-3.003 10.885,0c12.777,12.781 40.11,17.317 59.637,17.317c19.522,0 46.86,-4.536 59.657,-17.321c3.016,-2.999 7.886,-2.995 10.885,0.008c3.008,3.011 3.003,7.882 -0.008,10.889Zm-5.23,-48.781c-16.373,0 -29.701,-13.324 -29.701,-29.698c0,-16.381 13.328,-29.714 29.701,-29.714c16.378,0 29.706,13.333 29.706,29.714c0,16.374 -13.328,29.698 -29.706,29.698Zm-160.386,-29.702c0,-16.381 13.328,-29.71 29.714,-29.71c16.369,0 29.689,13.329 29.689,29.71c0,16.373 -13.32,29.693 -29.689,29.693c-16.386,0 -29.714,-13.32 -29.714,-29.693Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share Implementando leitura, escrita e streaming kafka em Go. on facebook"
+        href="https://facebook.com/sharer/sharer.php?u=https%3a%2f%2fpaulosalum.github.io%2fposts%2fgolang-kafka%2f">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-106.468,0l0,-192.915l66.6,0l12.672,-82.621l-79.272,0l0,-53.617c0,-22.603 11.073,-44.636 46.58,-44.636l36.042,0l0,-70.34c0,0 -32.71,-5.582 -63.982,-5.582c-65.288,0 -107.96,39.569 -107.96,111.204l0,62.971l-72.573,0l0,82.621l72.573,0l0,192.915l-191.104,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share Implementando leitura, escrita e streaming kafka em Go. on whatsapp"
+        href="https://api.whatsapp.com/send?text=Implementando%20leitura%2c%20escrita%20e%20streaming%20kafka%20em%20Go.%20-%20https%3a%2f%2fpaulosalum.github.io%2fposts%2fgolang-kafka%2f">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-58.673,127.703c-33.842,-33.881 -78.847,-52.548 -126.798,-52.568c-98.799,0 -179.21,80.405 -179.249,179.234c-0.013,31.593 8.241,62.428 23.927,89.612l-25.429,92.884l95.021,-24.925c26.181,14.28 55.659,21.807 85.658,21.816l0.074,0c98.789,0 179.206,-80.413 179.247,-179.243c0.018,-47.895 -18.61,-92.93 -52.451,-126.81Zm-126.797,275.782l-0.06,0c-26.734,-0.01 -52.954,-7.193 -75.828,-20.767l-5.441,-3.229l-56.386,14.792l15.05,-54.977l-3.542,-5.637c-14.913,-23.72 -22.791,-51.136 -22.779,-79.287c0.033,-82.142 66.867,-148.971 149.046,-148.971c39.793,0.014 77.199,15.531 105.329,43.692c28.128,28.16 43.609,65.592 43.594,105.4c-0.034,82.149 -66.866,148.983 -148.983,148.984Zm81.721,-111.581c-4.479,-2.242 -26.499,-13.075 -30.604,-14.571c-4.105,-1.495 -7.091,-2.241 -10.077,2.241c-2.986,4.483 -11.569,14.572 -14.182,17.562c-2.612,2.988 -5.225,3.364 -9.703,1.12c-4.479,-2.241 -18.91,-6.97 -36.017,-22.23c-13.314,-11.876 -22.304,-26.542 -24.916,-31.026c-2.612,-4.484 -0.279,-6.908 1.963,-9.14c2.016,-2.007 4.48,-5.232 6.719,-7.847c2.24,-2.615 2.986,-4.484 4.479,-7.472c1.493,-2.99 0.747,-5.604 -0.374,-7.846c-1.119,-2.241 -10.077,-24.288 -13.809,-33.256c-3.635,-8.733 -7.327,-7.55 -10.077,-7.688c-2.609,-0.13 -5.598,-0.158 -8.583,-0.158c-2.986,0 -7.839,1.121 -11.944,5.604c-4.105,4.484 -15.675,15.32 -15.675,37.364c0,22.046 16.048,43.342 18.287,46.332c2.24,2.99 31.582,48.227 76.511,67.627c10.685,4.615 19.028,7.371 25.533,9.434c10.728,3.41 20.492,2.929 28.209,1.775c8.605,-1.285 26.499,-10.833 30.231,-21.295c3.732,-10.464 3.732,-19.431 2.612,-21.298c-1.119,-1.869 -4.105,-2.99 -8.583,-5.232Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share Implementando leitura, escrita e streaming kafka em Go. on telegram"
+        href="https://telegram.me/share/url?text=Implementando%20leitura%2c%20escrita%20e%20streaming%20kafka%20em%20Go.&amp;url=https%3a%2f%2fpaulosalum.github.io%2fposts%2fgolang-kafka%2f">
+        <svg version="1.1" xml:space="preserve" viewBox="2 2 28 28" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M26.49,29.86H5.5a3.37,3.37,0,0,1-2.47-1,3.35,3.35,0,0,1-1-2.47V5.48A3.36,3.36,0,0,1,3,3,3.37,3.37,0,0,1,5.5,2h21A3.38,3.38,0,0,1,29,3a3.36,3.36,0,0,1,1,2.46V26.37a3.35,3.35,0,0,1-1,2.47A3.38,3.38,0,0,1,26.49,29.86Zm-5.38-6.71a.79.79,0,0,0,.85-.66L24.73,9.24a.55.55,0,0,0-.18-.46.62.62,0,0,0-.41-.17q-.08,0-16.53,6.11a.59.59,0,0,0-.41.59.57.57,0,0,0,.43.52l4,1.24,1.61,4.83a.62.62,0,0,0,.63.43.56.56,0,0,0,.4-.17L16.54,20l4.09,3A.9.9,0,0,0,21.11,23.15ZM13.8,20.71l-1.21-4q8.72-5.55,8.78-5.55c.15,0,.23,0,.23.16a.18.18,0,0,1,0,.06s-2.51,2.3-7.52,6.8Z" />
+        </svg>
+    </a>
+</div>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>&copy; 2023 <a href="https://paulosalum.github.io/">paulosalum.github.io</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
